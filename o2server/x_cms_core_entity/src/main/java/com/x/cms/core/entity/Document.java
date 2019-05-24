@@ -12,6 +12,8 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
 import org.apache.openjpa.persistence.PersistentCollection;
@@ -27,6 +29,11 @@ import com.x.base.core.entity.annotation.CheckPersist;
 import com.x.base.core.entity.annotation.ContainerEntity;
 import com.x.base.core.project.annotation.FieldDescribe;
 
+/**
+ * 文档基础信息类
+ * @author O2LEE
+ *
+ */
 @Entity
 @ContainerEntity
 @Table(name = PersistenceProperties.Document.table, uniqueConstraints = {
@@ -65,13 +72,13 @@ public class Document extends SliceJpaObject {
 	 */
 
 	public static final String summary_FIELDNAME = "summary";
-	@FieldDescribe( "文档摘要" )
+	@FieldDescribe("文档摘要")
 	@Column(length = STRING_VALUE_MAX_LENGTH, name = ColumnNamePrefix + summary_FIELDNAME)
-	@CheckPersist( allowEmpty = true )
+	@CheckPersist(allowEmpty = true)
 	private String summary;
 
 	public static final String title_FIELDNAME = "title";
-	@FieldDescribe( "文档标题" )
+	@FieldDescribe("文档标题")
 	@Column(length = STRING_VALUE_MAX_LENGTH, name = ColumnNamePrefix + title_FIELDNAME)
 	@Index(name = TABLE + IndexNameMiddle + title_FIELDNAME)
 	@CheckPersist(allowEmpty = false)
@@ -197,6 +204,7 @@ public class Document extends SliceJpaObject {
 
 	public static final String publishTime_FIELDNAME = "publishTime";
 	@FieldDescribe("文档发布时间")
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = ColumnNamePrefix + publishTime_FIELDNAME)
 	@Index(name = TABLE + IndexNameMiddle + publishTime_FIELDNAME)
 	@CheckPersist(allowEmpty = true)
@@ -211,15 +219,15 @@ public class Document extends SliceJpaObject {
 
 	public static final String reviewed_FIELDNAME = "reviewed";
 	@FieldDescribe("是否已经更新review.")
-	@Column( name = ColumnNamePrefix + reviewed_FIELDNAME)
+	@Column(name = ColumnNamePrefix + reviewed_FIELDNAME)
 	@CheckPersist(allowEmpty = true)
 	@Index(name = TABLE + IndexNameMiddle + reviewed_FIELDNAME)
 	private Boolean reviewed = false;
-	
+
 	public static final String readPersonList_FIELDNAME = "readPersonList";
 	@FieldDescribe("阅读人员")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + readPersonList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + readPersonList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix
@@ -231,7 +239,7 @@ public class Document extends SliceJpaObject {
 	public static final String readUnitList_FIELDNAME = "readUnitList";
 	@FieldDescribe("阅读组织")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + readUnitList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + readUnitList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix
@@ -243,7 +251,7 @@ public class Document extends SliceJpaObject {
 	public static final String readGroupList_FIELDNAME = "readGroupList";
 	@FieldDescribe("阅读群组")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + readGroupList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + readGroupList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix
@@ -255,7 +263,7 @@ public class Document extends SliceJpaObject {
 	public static final String authorPersonList_FIELDNAME = "authorPersonList";
 	@FieldDescribe("作者人员")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle
 			+ authorPersonList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle + authorPersonList_FIELDNAME
 					+ JoinIndexNameSuffix))
@@ -268,7 +276,7 @@ public class Document extends SliceJpaObject {
 	public static final String authorUnitList_FIELDNAME = "authorUnitList";
 	@FieldDescribe("作者组织")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + authorUnitList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + authorUnitList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix
@@ -280,7 +288,7 @@ public class Document extends SliceJpaObject {
 	public static final String authorGroupList_FIELDNAME = "authorGroupList";
 	@FieldDescribe("作者群组")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + authorGroupList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + authorGroupList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix
@@ -288,11 +296,48 @@ public class Document extends SliceJpaObject {
 	@ElementIndex(name = TABLE + IndexNameMiddle + authorGroupList_FIELDNAME + ElementIndexNameSuffix)
 	@CheckPersist(allowEmpty = true)
 	private List<String> authorGroupList;
+	
+	public static final String remindPersonList_FIELDNAME = "remindPersonList";
+	@FieldDescribe("发布提醒人员")
+	@PersistentCollection(fetch = FetchType.EAGER)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
+	@ContainerTable(name = TABLE + ContainerTableNameMiddle
+			+ remindPersonList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle + remindPersonList_FIELDNAME
+					+ JoinIndexNameSuffix))
+	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix
+			+ remindPersonList_FIELDNAME)
+	@ElementIndex(name = TABLE + IndexNameMiddle + remindPersonList_FIELDNAME + ElementIndexNameSuffix)
+	@CheckPersist(allowEmpty = true)
+	private List<String> remindPersonList;
+
+	public static final String remindUnitList_FIELDNAME = "remindUnitList";
+	@FieldDescribe("发布提醒组织")
+	@PersistentCollection(fetch = FetchType.EAGER)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
+	@ContainerTable(name = TABLE + ContainerTableNameMiddle + remindUnitList_FIELDNAME, joinIndex = @Index(name = TABLE
+			+ IndexNameMiddle + remindUnitList_FIELDNAME + JoinIndexNameSuffix))
+	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix
+			+ remindUnitList_FIELDNAME)
+	@ElementIndex(name = TABLE + IndexNameMiddle + remindUnitList_FIELDNAME + ElementIndexNameSuffix)
+	@CheckPersist(allowEmpty = true)
+	private List<String> remindUnitList;
+
+	public static final String remindGroupList_FIELDNAME = "remindGroupList";
+	@FieldDescribe("发布提醒群组")
+	@PersistentCollection(fetch = FetchType.EAGER)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
+	@ContainerTable(name = TABLE + ContainerTableNameMiddle + remindGroupList_FIELDNAME, joinIndex = @Index(name = TABLE
+			+ IndexNameMiddle + remindGroupList_FIELDNAME + JoinIndexNameSuffix))
+	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix
+			+ remindGroupList_FIELDNAME)
+	@ElementIndex(name = TABLE + IndexNameMiddle + remindGroupList_FIELDNAME + ElementIndexNameSuffix)
+	@CheckPersist(allowEmpty = true)
+	private List<String> remindGroupList;
 
 	public static final String managerList_FIELDNAME = "managerList";
 	@FieldDescribe("管理者")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + managerList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + managerList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix
@@ -304,7 +349,7 @@ public class Document extends SliceJpaObject {
 	public static final String pictureList_FIELDNAME = "pictureList";
 	@FieldDescribe("首页图片列表")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + pictureList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + pictureList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix
@@ -632,6 +677,30 @@ public class Document extends SliceJpaObject {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	public List<String> getRemindPersonList() {
+		return remindPersonList;
+	}
+
+	public void setRemindPersonList(List<String> remindPersonList) {
+		this.remindPersonList = remindPersonList;
+	}
+
+	public List<String> getRemindUnitList() {
+		return remindUnitList;
+	}
+
+	public void setRemindUnitList(List<String> remindUnitList) {
+		this.remindUnitList = remindUnitList;
+	}
+
+	public List<String> getRemindGroupList() {
+		return remindGroupList;
+	}
+
+	public void setRemindGroupList(List<String> remindGroupList) {
+		this.remindGroupList = remindGroupList;
 	}
 
 	private List<String> addStringToList(List<String> sourceList, String targetString) {

@@ -66,6 +66,7 @@ MWF.xApplication.Common.Main = new Class({
 		this.options.icon = this.path+this.options.style+"/"+this.options.icon;
 		
 		this.cssPath =this.path+this.options.style+"/css.wcss";
+        if (this.options.mvcStyle) this.stylePath = this.path+this.options.style+"/"+this.options.mvcStyle;
 		this._loadCss();
 	},
 	fireAppEvent: function(when){
@@ -110,9 +111,14 @@ MWF.xApplication.Common.Main = new Class({
 				this.fireAppEvent("postLoadWindow");
 				this.fireAppEvent("queryLoadApplication");
 				this.setContentEvent();
+
+				//load css
+				if (this.stylePath) o2.loadCss(this.stylePath);
 				this.loadApplication(function(){
 					this.fireAppEvent("postLoadApplication");
 				}.bind(this));
+
+
 				this.fireAppEvent("postLoad");
 			}.bind(this),
 			"onResize": function(){
@@ -157,6 +163,7 @@ MWF.xApplication.Common.Main = new Class({
             "maxSize": function(){},
             "restore": function(){},
             "setCurrent": function(){},
+			"setUncurrent": function(){},
             "hide": function(){},
             "maxOrRestoreSize": function(){},
             "restoreSize": function(){},
@@ -178,13 +185,22 @@ MWF.xApplication.Common.Main = new Class({
         // 	debugger;
         //     this.fireAppEvent("resize");
         // }.bind(this));
-        window.onbeforeunload = function(e){
-            this.fireAppEvent("queryClose");
-        }.bind(this);
+		window.addEventListener("beforeunload", function(e) {
+			this.fireAppEvent("queryClose");
+		}.bind(this));
+		window.addEventListener("pagehide", function(e) {
+			this.fireAppEvent("queryClose");
+		}.bind(this));
+
+		// window.onbeforeunload = function(e){
+        //     this.fireAppEvent("queryClose");
+        // }.bind(this);
 
         this.fireAppEvent("postLoadWindow");
         this.fireAppEvent("queryLoadApplication");
         this.setContentEvent();
+
+        if (this.stylePath) o2.loadCss(this.stylePath);
         this.loadApplication(function(){
             this.fireAppEvent("postLoadApplication");
         }.bind(this));
@@ -298,11 +314,11 @@ MWF.xApplication.Common.Main = new Class({
         this.desktop.refreshApp(this);
     },
 	close: function(){
-		this.fireAppEvent("queryClose");
-		this.setUncurrent();
         if (this.inBrowser){
             window.close();
         }else{
+			this.fireAppEvent("queryClose");
+			this.setUncurrent();
             this.window.close(function(){
                 this.taskitem.destroy();
                 this.window = null;
@@ -537,19 +553,33 @@ MWF.xApplication.Common.Main = new Class({
 	alert: function(type, e, title, text, width, height){
 		MWF.require("MWF.widget.Dialog", function(){
 			var size = $(document.body).getSize();
-			
-			var x = parseFloat(e.event.x);
-			var y = parseFloat(e.event.y);
-            if (Browser.name=="firefox"){
-                x = parseFloat(e.event.clientX);
-                y = parseFloat(e.event.clientY);
+
+            var x = 0, y = 0;
+			if (e==="center") {
+                var p = o2.getCenterPosition(document.body, width, height);
+                x = p.x;
+                y = p.y;
+            }else{
+                x = parseFloat(e.event.x);
+                y = parseFloat(e.event.y);
+                if (Browser.name=="firefox"){
+                    x = parseFloat(e.event.clientX);
+                    y = parseFloat(e.event.clientY);
+                }
+                x = x - parseFloat(width)/2;
+                y = y - parseFloat(height)/2;
             }
-			x = x - parseFloat(width)/2;
-			y = y - parseFloat(height)/2;
-			
+
 			if (x+parseFloat(width)>size.x){
 				x = x-parseFloat(width);
 			}
+            if (x<0) x=0;
+
+            if (y+parseFloat(height)>size.y){
+                y = y-parseFloat(height);
+            }
+            if (y<0) y=0;
+
 
             var ctext = "";
             var chtml = "";
@@ -566,7 +596,7 @@ MWF.xApplication.Common.Main = new Class({
 				"top": y,
 				"left": x,
 				"fromTop":y,
-				"fromLeft": (Browser.name=="firefox") ? e.event.clientX : e.event.x,
+				"fromLeft": x,
 				"width": width,
 				"height": height,
                 "text": ctext,

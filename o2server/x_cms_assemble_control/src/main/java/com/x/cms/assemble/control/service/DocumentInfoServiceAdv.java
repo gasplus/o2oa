@@ -1,5 +1,6 @@
 package com.x.cms.assemble.control.service;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -54,6 +55,28 @@ public class DocumentInfoServiceAdv {
 		}
 		try ( EntityManagerContainer emc = EntityManagerContainerFactory.instance().create() ) {
 			return documentInfoService.listByCategoryId( emc, categoryId );
+		} catch ( Exception e ) {
+			throw e;
+		}
+	}
+	
+	public List<String> listIdsByCategoryId( String categoryId, Integer maxCount ) throws Exception {
+		if( categoryId == null || categoryId.isEmpty() ){
+			throw new Exception("categoryId is null!");
+		}
+		try ( EntityManagerContainer emc = EntityManagerContainerFactory.instance().create() ) {
+			return documentInfoService.listByCategoryId( emc, categoryId, maxCount );
+		} catch ( Exception e ) {
+			throw e;
+		}
+	}
+	
+	public List<String> listIdsByAppId( String appId, String documentType, Integer maxCount ) throws Exception {
+		if( appId == null || appId.isEmpty() ){
+			throw new Exception("categoryId is null!");
+		}
+		try ( EntityManagerContainer emc = EntityManagerContainerFactory.instance().create() ) {
+			return documentInfoService.listByAppId( emc, appId, documentType, maxCount );
 		} catch ( Exception e ) {
 			throw e;
 		}
@@ -125,6 +148,17 @@ public class DocumentInfoServiceAdv {
 			throw e;
 		}
 	}
+	
+	public Long countByAppId(String appId ) throws Exception {
+		if( appId == null || appId.isEmpty() ){
+			throw new Exception("appId is null!");
+		}
+		try ( EntityManagerContainer emc = EntityManagerContainerFactory.instance().create() ) {
+			return documentInfoService.countByAppId( emc, appId );
+		} catch ( Exception e ) {
+			throw e;
+		}
+	}
 
 	public List<Document> list(List<String> ids) throws Exception {
 		if( ListTools.isEmpty( ids ) ){
@@ -186,13 +220,13 @@ public class DocumentInfoServiceAdv {
 			List<String> createDateList,  List<String> publishDateList,  List<String> statusList, String documentType, 
 			List<String>  creatorUnitNameList,
 			List<String> importBatchNames, List<String> personNames, 
-			List<String> unitNames, List<String> groupNames, Boolean manager) throws Exception {
+			List<String> unitNames, List<String> groupNames, Boolean manager, Date lastedPublishTime ) throws Exception {
 		if( ListTools.isEmpty( viewAbleCategoryIds ) && !manager ){
 			return 0L;
 		}
 		try ( EntityManagerContainer emc = EntityManagerContainerFactory.instance().create() ) {
 			return documentInfoService.countWithCondition( emc, viewAbleCategoryIds, title, publisherList, createDateList, publishDateList, 
-					statusList, documentType, creatorUnitNameList, importBatchNames, personNames, unitNames, groupNames, manager );
+					statusList, documentType, creatorUnitNameList, importBatchNames, personNames, unitNames, groupNames, manager, lastedPublishTime );
 		} catch ( Exception e ) {
 			throw e;
 		}
@@ -201,7 +235,7 @@ public class DocumentInfoServiceAdv {
 	public List<Document> listNextWithCondition(String id, Integer count, List<String> viewAbleCategoryIds, String title, List<String> publisherList, 
 			List<String> createDateList,  List<String> publishDateList,  List<String> statusList, String documentType, 
 			List<String>  creatorUnitNameList, List<String> importBatchNames, List<String> personNames, 
-			List<String> unitNames, List<String> groupNames,  String orderField, String order, Boolean manager) throws Exception {
+			List<String> unitNames, List<String> groupNames,  String orderField, String order, Boolean manager, Date lastedPublishTime ) throws Exception {
 		if( ListTools.isEmpty( viewAbleCategoryIds ) && !manager ){
 			return null;
 		}
@@ -213,7 +247,7 @@ public class DocumentInfoServiceAdv {
 		}
 		try ( EntityManagerContainer emc = EntityManagerContainerFactory.instance().create() ) {
 			return documentInfoService.listNextWithCondition( emc, id, count, viewAbleCategoryIds, title, publisherList, createDateList, publishDateList, 
-					statusList, documentType, creatorUnitNameList, importBatchNames, personNames, unitNames,  groupNames, orderField, order, manager );
+					statusList, documentType, creatorUnitNameList, importBatchNames, personNames, unitNames,  groupNames, orderField, order, manager, lastedPublishTime );
 		} catch ( Exception e ) {
 			throw e;
 		}
@@ -223,9 +257,9 @@ public class DocumentInfoServiceAdv {
 		if( name == null || name.isEmpty()){
 			throw new Exception("name is null!");
 		}
-		if( categoryIdList == null || categoryIdList.isEmpty() ){
-			throw new Exception("categoryIdList is null!");
-		}
+//		if( categoryIdList == null || categoryIdList.isEmpty() ){
+//			throw new Exception("categoryIdList is null!");
+//		}
 		try ( EntityManagerContainer emc = EntityManagerContainerFactory.instance().create() ) {
 			return documentInfoService.listMyDraft( emc, name, categoryIdList, documentType );
 		} catch ( Exception e ) {

@@ -31,7 +31,6 @@ import com.x.base.core.project.tools.StringTools;
 import com.x.processplatform.core.entity.PersistenceProperties;
 import com.x.processplatform.core.entity.element.ActivityType;
 import com.x.processplatform.core.entity.element.Manual;
-import com.x.processplatform.core.entity.element.ManualMode;
 import com.x.processplatform.core.entity.element.Route;
 
 /**
@@ -228,7 +227,7 @@ public class TaskCompleted extends SliceJpaObject {
 	private String startTimeMonth;
 
 	public static final String completedTime_FIELDNAME = "completedTime";
-	@FieldDescribe("任务完成时间.")
+	@FieldDescribe("task转成taskCompleted的完成时间,也就是任务的完成时间.")
 	@Temporal(TemporalType.TIMESTAMP)
 	/* 结束时间不能为空,如果为空排序可能出错 */
 	@Column(name = ColumnNamePrefix + completedTime_FIELDNAME)
@@ -237,7 +236,7 @@ public class TaskCompleted extends SliceJpaObject {
 	private Date completedTime;
 
 	public static final String completedTimeMonth_FIELDNAME = "completedTimeMonth";
-	@FieldDescribe("用于在Filter中分类使用.")
+	@FieldDescribe("task转成taskCompleted的完成月份,也就是任务的完成时间,用于filter过滤.")
 	@Column(length = JpaObject.length_16B, name = ColumnNamePrefix + completedTimeMonth_FIELDNAME)
 	@Index(name = TABLE + IndexNameMiddle + completedTimeMonth_FIELDNAME)
 	@CheckPersist(allowEmpty = true)
@@ -251,7 +250,7 @@ public class TaskCompleted extends SliceJpaObject {
 	private String work;
 
 	public static final String completed_FIELDNAME = "completed";
-	@FieldDescribe("是否已经完成.")
+	@FieldDescribe("整个job是否已经完成.")
 	@Column(name = ColumnNamePrefix + completed_FIELDNAME)
 	@Index(name = TABLE + IndexNameMiddle + completed_FIELDNAME)
 	@CheckPersist(allowEmpty = true)
@@ -445,15 +444,6 @@ public class TaskCompleted extends SliceJpaObject {
 	@CheckPersist(allowEmpty = false)
 	private Long duration;
 
-	// public static final String manualMode_FIELDNAME = "manualMode";
-	// @Enumerated(EnumType.ORDINAL)
-	// @FieldDescribe("人工节点的处理方式.")
-	// @Column(length = ManualMode.length, name = ColumnNamePrefix +
-	// manualMode_FIELDNAME)
-	// @Index(name = TABLE + IndexNameMiddle + manualMode_FIELDNAME)
-	// @CheckPersist(allowEmpty = false)
-	// private ManualMode manualMode;
-
 	public static final String processingType_FIELDNAME = "processingType";
 	@FieldDescribe("流程流转类型")
 	@Enumerated(EnumType.STRING)
@@ -481,6 +471,25 @@ public class TaskCompleted extends SliceJpaObject {
 	@Column(length = length_255B, name = ColumnNamePrefix + mediaOpinion_FIELDNAME)
 	@CheckPersist(allowEmpty = true)
 	private String mediaOpinion;
+
+	public static final String pressCount_FIELDNAME = "pressCount";
+	@FieldDescribe("提醒次数")
+	@Column(name = ColumnNamePrefix + pressCount_FIELDNAME)
+	@CheckPersist(allowEmpty = true)
+	private Integer pressCount;
+
+	public static final String pressTime_FIELDNAME = "pressTime";
+	@FieldDescribe("提醒办理时间.")
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = ColumnNamePrefix + pressTime_FIELDNAME)
+	@CheckPersist(allowEmpty = true)
+	private Date pressTime;
+
+	public static final String pressActivityToken_FIELDNAME = "pressActivityToken";
+	@FieldDescribe("提醒办理环节.")
+	@Column(length = JpaObject.length_id, name = ColumnNamePrefix + pressActivityToken_FIELDNAME)
+	@CheckPersist(allowEmpty = true)
+	private String pressActivityToken;
 
 	public String getJob() {
 		return job;
@@ -792,6 +801,30 @@ public class TaskCompleted extends SliceJpaObject {
 
 	public void setMediaOpinion(String mediaOpinion) {
 		this.mediaOpinion = mediaOpinion;
+	}
+
+	public Date getPressTime() {
+		return pressTime;
+	}
+
+	public void setPressTime(Date pressTime) {
+		this.pressTime = pressTime;
+	}
+
+	public String getPressActivityToken() {
+		return pressActivityToken;
+	}
+
+	public void setPressActivityToken(String pressActivityToken) {
+		this.pressActivityToken = pressActivityToken;
+	}
+
+	public Integer getPressCount() {
+		return pressCount;
+	}
+
+	public void setPressCount(Integer pressCount) {
+		this.pressCount = pressCount;
 	}
 
 }

@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.x.base.core.entity.JpaObject;
 import com.x.base.core.project.message.MessageConnector;
+import com.x.base.core.project.organization.OrganizationDefinition;
 import com.x.base.core.project.tools.DateTools;
 import com.x.base.core.project.tools.StringTools;
 import com.x.processplatform.core.entity.content.Read;
@@ -14,6 +15,12 @@ import com.x.processplatform.core.entity.content.TaskCompleted;
 import com.x.processplatform.core.entity.content.Work;
 
 public class MessageFactory {
+
+	public static void task_press(Task task, String from) throws Exception {
+		String title = OrganizationDefinition.name(from) + "提醒您处理待办:" + adjustTitle(task);
+		title = StringTools.utf8SubString(title, JpaObject.length_255B);
+		MessageConnector.send(MessageConnector.TYPE_TASK_PRESS, title, task.getPerson(), task);
+	}
 
 	public static void task_urge(Task task) throws Exception {
 		String title = "您的待办即将超时:" + adjustTitle(task);
@@ -99,7 +106,7 @@ public class MessageFactory {
 
 	private static String adjustTitle(Task o) {
 		String title = "";
-		if (StringUtils.isNotEmpty(o.getTitle())) {
+		if (StringUtils.isEmpty(o.getTitle())) {
 			title = "无标题 " + DateTools.format(o.getStartTime());
 		} else {
 			title = o.getTitle();
@@ -110,7 +117,7 @@ public class MessageFactory {
 
 	private static String adjustTitle(Read o) {
 		String title = "";
-		if (StringUtils.isNotEmpty(o.getTitle())) {
+		if (StringUtils.isEmpty(o.getTitle())) {
 			title = "无标题 " + DateTools.format(o.getStartTime());
 		} else {
 			title = o.getTitle();
@@ -121,7 +128,7 @@ public class MessageFactory {
 
 	private static String adjustTitle(TaskCompleted o) {
 		String title = "";
-		if (StringUtils.isNotEmpty(o.getTitle())) {
+		if (StringUtils.isEmpty(o.getTitle())) {
 			title = "无标题 " + DateTools.format(o.getStartTime());
 		} else {
 			title = o.getTitle();
@@ -132,7 +139,7 @@ public class MessageFactory {
 
 	private static String adjustTitle(ReadCompleted o) {
 		String title = "";
-		if (StringUtils.isNotEmpty(o.getTitle())) {
+		if (StringUtils.isEmpty(o.getTitle())) {
 			title = "无标题 " + DateTools.format(o.getStartTime());
 		} else {
 			title = o.getTitle();
@@ -143,7 +150,7 @@ public class MessageFactory {
 
 	private static String adjustTitle(Review o) {
 		String title = "";
-		if (StringUtils.isNotEmpty(o.getTitle())) {
+		if (StringUtils.isEmpty(o.getTitle())) {
 			title = "无标题 " + DateTools.format(o.getStartTime());
 		} else {
 			title = o.getTitle();
@@ -154,7 +161,7 @@ public class MessageFactory {
 
 	private static String adjustTitle(Work o) {
 		String title = "";
-		if (StringUtils.isNotEmpty(o.getTitle())) {
+		if (StringUtils.isEmpty(o.getTitle())) {
 			title = "无标题 " + DateTools.format(o.getStartTime());
 		} else {
 			title = o.getTitle();

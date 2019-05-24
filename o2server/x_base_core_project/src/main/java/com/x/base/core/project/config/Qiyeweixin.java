@@ -1,13 +1,18 @@
 package com.x.base.core.project.config;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.x.base.core.project.annotation.FieldDescribe;
 import com.x.base.core.project.connection.HttpConnection;
+import com.x.base.core.project.gson.GsonPropertyObject;
+import com.x.base.core.project.gson.XGsonBuilder;
+import com.x.base.core.project.tools.DefaultCharset;
 
 public class Qiyeweixin extends ConfigObject {
 
@@ -137,7 +142,7 @@ public class Qiyeweixin extends ConfigObject {
 		this.apiAddress = oapiAddress;
 	}
 
-	public static class CorpAccessTokenResp {
+	public static class CorpAccessTokenResp extends GsonPropertyObject {
 
 		// {"":7200,"":"ok","":"1601c97b17893fbfa4218ce2151a0692","":0}
 
@@ -312,6 +317,11 @@ public class Qiyeweixin extends ConfigObject {
 
 	public void setAgentId(String agentId) {
 		this.agentId = agentId;
+	}
+
+	public void save() throws Exception {
+		File file = new File(Config.base(), Config.PATH_CONFIG_QIYEWEIXIN);
+		FileUtils.write(file, XGsonBuilder.toJson(this), DefaultCharset.charset);
 	}
 
 }

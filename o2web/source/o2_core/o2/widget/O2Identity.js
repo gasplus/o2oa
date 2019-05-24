@@ -331,7 +331,7 @@ o2.widget.O2Process = new Class({
         });
         var nameNode = new Element("div", {
             "styles": this.style.identityInforNameNode,
-            "text": this.data.applicationName || this.data.appName
+            "text": this.data.name || this.data.applicationName || this.data.appName
         }).inject(this.inforNode);
         this.tooltip = new mBox.Tooltip({
             content: this.inforNode,
@@ -422,6 +422,21 @@ o2.widget.O2QueryStat = new Class({
         if (!this.data.query){
             var data = null;
             o2.Actions.get("x_query_assemble_surface").getStatById(this.data.id, function(json){
+                data = json.data
+            }, null, false);
+            this.data = data;
+            return data;
+        }else{
+            return this.data;
+        }
+    }
+});
+o2.widget.O2QueryTable = new Class({
+    Extends: o2.widget.O2View,
+    getPersonData: function(){
+        if (!this.data.query){
+            var data = null;
+            o2.Actions.get("x_query_assemble_surface").getTableById(this.data.id, function(json){
                 data = json.data
             }, null, false);
             this.data = data;

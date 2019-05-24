@@ -818,7 +818,7 @@ MWF.xApplication.process.ProcessDesigner.Route = new Class({
         return this.paper.arrow(beginPoint, this.endPoint, this.l1, this.l2, this.aj);
     },
     createCorner: function (p, idx) {
-        var corner = this.paper.rectPath((p.x.toFloat()) - 2.5, (p.y.toFloat()) - 2.5, 5, 5, 0);
+        var corner = this.paper.rectPath((p.x.toInt()) - 2.5, (p.y.toInt()) - 2.5, 5, 5, 0);
         corner.data("position", p);
         corner.attr(this.process.css.route.corner["default"]);
         corner.hide();
@@ -991,7 +991,8 @@ MWF.xApplication.process.ProcessDesigner.Route = new Class({
         }
     },
     _setEditProperty: function (name, input, oldValue) {
-        if (name === "passExpired" || name === "passSameTarget") {
+        debugger;
+        if (name === "passExpired" || name === "passSameTarget"  || name === "sole") {
             if (this.data[name]) {
                 if (this.fromActivity) {
                     this.fromActivity.routes.each(function(route){
@@ -1007,8 +1008,6 @@ MWF.xApplication.process.ProcessDesigner.Route = new Class({
                     }.bind(this));
                 }
             }
-
-
         }
     }
 });

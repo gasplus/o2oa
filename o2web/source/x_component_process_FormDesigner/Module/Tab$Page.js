@@ -35,7 +35,8 @@ MWF.xApplication.process.FormDesigner.Module.Tab$Page = MWF.FCTab$Page = new Cla
 		    	"action": "delete",
 		    	"title": MWF.APPFD.LP.formAction["delete"]
 		    }
-		]
+		],
+		"injectActions" : null
 	},
 	
 	initialize: function(tab, page, options){
@@ -120,6 +121,7 @@ MWF.xApplication.process.FormDesigner.Module.Tab$Page = MWF.FCTab$Page = new Cla
 	"addPage": function(){
 		var page = this.tab.addPage();
 		page.tabNode.inject(this.page.tabNode, "before");
+        page.contentNodeArea.inject(this.page.contentNodeArea, "before");
 		page.showTabIm();
 	},
 	"delete": function(e){
@@ -218,7 +220,7 @@ MWF.xApplication.process.FormDesigner.Module.Tab$Page = MWF.FCTab$Page = new Cla
 				if (inObj){
 					var module = inObj.retrieve("module");
 					if (module) module._dragDrop(this);
-					this._nodeDrop();
+					this._nodeDrop( module );
 
                     if (module){
                         this.page.contentNodeArea.inject(module.page.contentNodeArea, "before");

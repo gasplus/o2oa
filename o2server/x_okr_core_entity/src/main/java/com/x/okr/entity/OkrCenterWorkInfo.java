@@ -14,6 +14,8 @@ import javax.persistence.InheritanceType;
 import javax.persistence.Lob;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
 import org.apache.openjpa.persistence.PersistentCollection;
@@ -165,6 +167,7 @@ public class OkrCenterWorkInfo extends SliceJpaObject {
 
 	public static final String defaultCompleteDateLimit_FIELDNAME = "defaultCompleteDateLimit";
 	@FieldDescribe("中心工作默认完成日期")
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = ColumnNamePrefix + defaultCompleteDateLimit_FIELDNAME)
 	@CheckPersist(allowEmpty = true)
 	private Date defaultCompleteDateLimit = null;
@@ -207,7 +210,7 @@ public class OkrCenterWorkInfo extends SliceJpaObject {
 	@CheckPersist(allowEmpty = true)
 	private String description = "";
 
-	public static final String workTotal_FIELDNAME = " workTotal";
+	public static final String workTotal_FIELDNAME = "workTotal";
 	@FieldDescribe("工作总个数")
 	@Column(name = ColumnNamePrefix + workTotal_FIELDNAME)
 	@CheckPersist(allowEmpty = true)
@@ -240,7 +243,7 @@ public class OkrCenterWorkInfo extends SliceJpaObject {
 	public static final String defaultLeaderList_FIELDNAME = "defaultLeaderList";
 	@FieldDescribe("中心工作默认阅知领导姓名")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name =  ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle
 			+ defaultLeaderList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle
 					+ defaultLeaderList_FIELDNAME + JoinIndexNameSuffix))
@@ -253,7 +256,7 @@ public class OkrCenterWorkInfo extends SliceJpaObject {
 	public static final String defaultLeaderIdentityList_FIELDNAME = "defaultLeaderIdentityList";
 	@FieldDescribe("中心工作默认阅知领导身份")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name =  ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle
 			+ defaultLeaderIdentityList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle
 					+ defaultLeaderIdentityList_FIELDNAME + JoinIndexNameSuffix))
@@ -266,7 +269,7 @@ public class OkrCenterWorkInfo extends SliceJpaObject {
 	public static final String reportAuditLeaderNameList_FIELDNAME = "reportAuditLeaderNameList";
 	@FieldDescribe("工作汇报审批领导(可多值，显示用)")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name =  ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle
 			+ reportAuditLeaderNameList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle
 					+ reportAuditLeaderNameList_FIELDNAME + JoinIndexNameSuffix))
@@ -279,7 +282,7 @@ public class OkrCenterWorkInfo extends SliceJpaObject {
 	public static final String reportAuditLeaderIdentityList_FIELDNAME = "reportAuditLeaderIdentityList";
 	@FieldDescribe("工作汇报审批领导身份(可多值，计算组织和顶层组织用)")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name =  ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle
 			+ reportAuditLeaderIdentityList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle
 					+ reportAuditLeaderIdentityList_FIELDNAME + JoinIndexNameSuffix))
@@ -293,7 +296,7 @@ public class OkrCenterWorkInfo extends SliceJpaObject {
 	public static final String reportAuditLeaderUnitNameList_FIELDNAME = "reportAuditLeaderUnitNameList";
 	@FieldDescribe("审核者所属组织，多值")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name =  ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle
 			+ reportAuditLeaderUnitNameList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle
 					+ reportAuditLeaderUnitNameList_FIELDNAME + JoinIndexNameSuffix))
@@ -306,7 +309,7 @@ public class OkrCenterWorkInfo extends SliceJpaObject {
 	public static final String reportAuditLeaderTopUnitNameList_FIELDNAME = "reportAuditLeaderTopUnitNameList";
 	@FieldDescribe("审核者所属顶层组织，多值")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name =  ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle
 			+ reportAuditLeaderTopUnitNameList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle
 					+ reportAuditLeaderTopUnitNameList_FIELDNAME + JoinIndexNameSuffix))
@@ -319,7 +322,7 @@ public class OkrCenterWorkInfo extends SliceJpaObject {
 	public static final String attachmentList_FIELDNAME = "attachmentList";
 	@FieldDescribe("附件列表")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name =  ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + attachmentList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + attachmentList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix

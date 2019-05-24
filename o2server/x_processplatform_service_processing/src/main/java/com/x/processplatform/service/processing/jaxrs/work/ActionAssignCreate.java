@@ -26,6 +26,8 @@ import com.x.base.core.project.gson.GsonPropertyObject;
 import com.x.base.core.project.http.ActionResult;
 import com.x.base.core.project.http.EffectivePerson;
 import com.x.base.core.project.jaxrs.WoId;
+import com.x.base.core.project.logger.Logger;
+import com.x.base.core.project.logger.LoggerFactory;
 import com.x.base.core.project.tools.ListTools;
 import com.x.base.core.project.tools.StringTools;
 import com.x.processplatform.core.entity.content.Attachment;
@@ -52,6 +54,8 @@ import com.x.processplatform.service.processing.WorkDataHelper;
  */
 class ActionAssignCreate extends BaseAction {
 
+	private static Logger logger = LoggerFactory.getLogger(ActionAssignCreate.class);
+
 	ActionResult<Wo> execute(EffectivePerson effectivePerson, JsonElement jsonElement) throws Exception {
 		ActionResult<Wo> result = new ActionResult<>();
 		String workId = "";
@@ -77,6 +81,8 @@ class ActionAssignCreate extends BaseAction {
 			work.setCreatorIdentity(identityDn);
 			work.setCreatorPerson(business.organization().person().getWithIdentity(identityDn));
 			work.setCreatorUnit(business.organization().unit().getWithIdentity(identityDn));
+			/* 通过赋值调用的是不能被作为草稿删除的 */
+			work.setDataChanged(true);
 			if (ListTools.isNotEmpty(wi.getAttachmentList())) {
 				emc.beginTransaction(Attachment.class);
 				/** 这个attachmentList要手动初始化 */

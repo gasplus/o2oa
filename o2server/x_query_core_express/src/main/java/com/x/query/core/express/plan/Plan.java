@@ -95,9 +95,13 @@ public abstract class Plan extends GsonPropertyObject {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			public int compare(Row r1, Row r2) {
 				int comp = 0;
+				Object o1 = null;
+				Object o2 = null;
+				Comparable c1 = null;
+				Comparable c2 = null;
 				for (SelectEntry en : orderList) {
-					Object o1 = r1.get(en.column);
-					Object o2 = r2.get(en.column);
+					o1 = r1.get(en.column);
+					o2 = r2.get(en.column);
 					if (null == o1 && null == o2) {
 						comp = 0;
 					} else if (null == o1) {
@@ -105,8 +109,13 @@ public abstract class Plan extends GsonPropertyObject {
 					} else if (null == o2) {
 						comp = 1;
 					} else {
-						Comparable c1 = (Comparable) o1;
-						Comparable c2 = (Comparable) o2;
+						if (o1.getClass() == o2.getClass()) {
+							c1 = (Comparable) o1;
+							c2 = (Comparable) o2;
+						} else {
+							c1 = o1.toString();
+							c2 = o2.toString();
+						}
 						if (StringUtils.equals(SelectEntry.ORDER_ASC, en.orderType)) {
 							comp = c1.compareTo(c2);
 						} else {
@@ -151,40 +160,6 @@ public abstract class Plan extends GsonPropertyObject {
 		}
 		return calculateRow;
 	}
-
-	// /*
-	// * 分类计算输出格式 [ { "group": "报销申请", "list": [ { "column":
-	// * "C7AC7F427FC0000141704670375F79F0", "displayName": "金额", "value": 1000 } ]
-	// },
-	// * { "group": "项目经理审批", "list": [ { "column":
-	// * "C7AC7F427FC0000141704670375F79F0", "displayName": "金额", "value": 1110 } ]
-	// }
-	// * ]
-	// */
-	// private CalculateGroupTable calculateGroup() throws Exception {
-	// CalculateGroupTable calculateGroupTable = new CalculateGroupTable();
-	// for (GroupRow groupRow : this.groupGrid) {
-	// List<CalculateCell> list = new TreeList<>();
-	// for (CalculateEntry entry : calculate.calculateList) {
-	// switch (entry.calculateType) {
-	// case CALCULATE_SUM:
-	// list.add(new CalculateCell(entry, entry.sum(groupRow.list)));
-	// break;
-	// case CALCULATE_AVERAGE:
-	// list.add(new CalculateCell(entry, entry.average(groupRow.list)));
-	// break;
-	// default:
-	// list.add(new CalculateCell(entry, entry.count(groupRow.list)));
-	// break;
-	// }
-	// }
-	// CalculateGroupRow calculateGroupRow = new CalculateGroupRow();
-	// calculateGroupRow.group = groupRow.group;
-	// calculateGroupRow.list = list;
-	// calculateGroupTable.add(calculateGroupRow);
-	// }
-	// return calculateGroupTable;
-	// }
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private GroupTable group(Table table) throws Exception {
@@ -352,22 +327,6 @@ public abstract class Plan extends GsonPropertyObject {
 				}
 				this.groupGrid = groupTable;
 			}
-			// /** stat 统计部分 */
-			// if ((null != this.calculate) && (this.calculate.available())) {
-			// logger.debug("开始数据统计.");
-			// if (BooleanUtils.isTrue(this.calculate.isGroup)) {
-			// CalculateGroupTable calculateGroupTable = this.calculateGroup();
-			// this.calculateGrid = calculateGroupTable;
-			// } else {
-			// CalculateRow calculateRow = this.calculate(table, calculate);
-			// this.calculateGrid = calculateRow;
-			// }
-			// if (StringUtils.isNotEmpty(this.afterCalculateGridScriptText)) {
-			// scriptEngine.put("calculateGrid", this.calculateGrid);
-			// scriptEngine.eval(this.afterCalculateGridScriptText);
-			// }
-			// logger.debug("数据统计完成.");
-			// }
 			/* 需要抽取单独的列 */
 			if (ListTools.isNotEmpty(this.columnList)) {
 				this.columnGrid = new TreeList<Object>();
@@ -517,8 +476,9 @@ public abstract class Plan extends GsonPropertyObject {
 			p = cb.and(p, cb.or(cb.isNull(root.get(Item_.path7)), cb.equal(root.get(Item_.path7), "")));
 		}
 		cq.multiselect(root.get(Item_.bundle), root.get(Item_.itemPrimitiveType), root.get(Item_.itemStringValueType),
-				root.get(Item_.stringShortValue), root.get(Item_.dateValue), root.get(Item_.timeValue),
-				root.get(Item_.dateTimeValue), root.get(Item_.booleanValue), root.get(Item_.numberValue)).where(p);
+				root.get(Item_.stringShortValue), root.get(Item_.stringLongValue), root.get(Item_.dateValue),
+				root.get(Item_.timeValue), root.get(Item_.dateTimeValue), root.get(Item_.booleanValue),
+				root.get(Item_.numberValue)).where(p);
 		List<Tuple> list = em.createQuery(cq).getResultList();
 		Row row = null;
 		for (Tuple o : list) {
@@ -528,22 +488,26 @@ public abstract class Plan extends GsonPropertyObject {
 				switch (ItemStringValueType.valueOf(Objects.toString(o.get(2)))) {
 				case s:
 					if (null != o.get(3)) {
-						row.put(selectEntry.getColumn(), Objects.toString(o.get(3)));
+						if ((null != o.get(4)) && StringUtils.isNotEmpty(Objects.toString(o.get(4)))) {
+							row.put(selectEntry.getColumn(), Objects.toString(o.get(4)));
+						} else {
+							row.put(selectEntry.getColumn(), Objects.toString(o.get(3)));
+						}
 					}
 					break;
 				case d:
-					if (null != o.get(4)) {
-						row.put(selectEntry.getColumn(), JpaObjectTools.confirm((Date) o.get(4)));
-					}
-					break;
-				case t:
 					if (null != o.get(5)) {
 						row.put(selectEntry.getColumn(), JpaObjectTools.confirm((Date) o.get(5)));
 					}
 					break;
-				case dt:
+				case t:
 					if (null != o.get(6)) {
 						row.put(selectEntry.getColumn(), JpaObjectTools.confirm((Date) o.get(6)));
+					}
+					break;
+				case dt:
+					if (null != o.get(7)) {
+						row.put(selectEntry.getColumn(), JpaObjectTools.confirm((Date) o.get(7)));
 					}
 					break;
 				default:
@@ -551,13 +515,13 @@ public abstract class Plan extends GsonPropertyObject {
 				}
 				break;
 			case b:
-				if (null != o.get(7)) {
-					row.put(selectEntry.getColumn(), (Boolean) o.get(7));
+				if (null != o.get(8)) {
+					row.put(selectEntry.getColumn(), (Boolean) o.get(8));
 				}
 				break;
 			case n:
-				if (null != o.get(8)) {
-					row.put(selectEntry.getColumn(), (Number) o.get(8));
+				if (null != o.get(9)) {
+					row.put(selectEntry.getColumn(), (Number) o.get(9));
 				}
 				break;
 			default:

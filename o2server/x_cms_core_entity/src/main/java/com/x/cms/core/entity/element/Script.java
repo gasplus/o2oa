@@ -13,6 +13,8 @@ import javax.persistence.InheritanceType;
 import javax.persistence.Lob;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
 import org.apache.openjpa.persistence.PersistentCollection;
@@ -110,7 +112,7 @@ public class Script extends SliceJpaObject {
 	public static final String dependScriptList_FIELDNAME = "dependScriptList";
 	@FieldDescribe("依赖的函数列表.")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + dependScriptList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + dependScriptList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix + dependScriptList_FIELDNAME)
@@ -132,6 +134,7 @@ public class Script extends SliceJpaObject {
 
 	public static final String lastUpdateTime_FIELDNAME = "lastUpdateTime";
 	@FieldDescribe("最后的编辑时间.")
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column( name = ColumnNamePrefix + lastUpdateTime_FIELDNAME)
 	@CheckPersist(allowEmpty = true)
 	private Date lastUpdateTime;

@@ -26,12 +26,12 @@ import org.apache.openjpa.persistence.jdbc.ElementColumn;
 import org.apache.openjpa.persistence.jdbc.ElementIndex;
 import org.apache.openjpa.persistence.jdbc.Index;
 
-import com.x.base.core.entity.AbstractPersistenceProperties;
 import com.x.base.core.entity.JpaObject;
 import com.x.base.core.entity.SliceJpaObject;
 import com.x.base.core.entity.annotation.CheckPersist;
 import com.x.base.core.entity.annotation.ContainerEntity;
 import com.x.base.core.project.annotation.FieldDescribe;
+import com.x.base.core.project.gson.XGsonBuilder;
 import com.x.base.core.project.tools.DateTools;
 import com.x.base.core.project.tools.StringTools;
 import com.x.processplatform.core.entity.PersistenceProperties;
@@ -80,7 +80,14 @@ public class Work extends SliceJpaObject {
 	}
 
 	public Work(Work work) throws Exception {
-		work.copyTo(this, JpaObject.id_FIELDNAME);
+		Work copy = XGsonBuilder.convert(work, Work.class);
+		copy.copyTo(this, JpaObject.id_FIELDNAME);
+	}
+
+	public Work(WorkCompleted workCompleted) throws Exception {
+		Work copy = XGsonBuilder.convert(workCompleted, Work.class);
+		copy.copyTo(this, JpaObject.id_FIELDNAME);
+		this.setId(workCompleted.getWork());
 	}
 
 	public void setTitle(String title) {
@@ -282,7 +289,7 @@ public class Work extends SliceJpaObject {
 	public static final String manualTaskIdentityList_FIELDNAME = "manualTaskIdentityList";
 	@FieldDescribe("预期的处理人")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle
 			+ manualTaskIdentityList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle
 					+ manualTaskIdentityList_FIELDNAME + JoinIndexNameSuffix))
@@ -308,7 +315,7 @@ public class Work extends SliceJpaObject {
 	public static final String splitTokenList_FIELDNAME = "splitTokenList";
 	@FieldDescribe("拆分工作产生的Token")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + splitTokenList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + splitTokenList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = JpaObject.length_id, name = ColumnNamePrefix + splitTokenList_FIELDNAME)
@@ -388,161 +395,6 @@ public class Work extends SliceJpaObject {
 	@Index(name = TABLE + IndexNameMiddle + embedTargetWork_FIELDNAME)
 	@CheckPersist(allowEmpty = true)
 	private String embedTargetWork;
-
-	// public static final String extensionString01_FIELDNAME = "extensionString01";
-	// @FieldDescribe("扩充文本字段01.")
-	// @Column(length = length_255B, name = ColumnNamePrefix +
-	// extensionString01_FIELDNAME)
-	// @Index(name = TABLE + IndexNameMiddle + extensionString01_FIELDNAME)
-	// @CheckPersist(allowEmpty = true)
-	// private String extensionString01;
-	//
-	// public static final String extensionString02_FIELDNAME = "extensionString02";
-	// @FieldDescribe("扩充文本字段02.")
-	// @Column(length = length_255B, name = ColumnNamePrefix +
-	// extensionString02_FIELDNAME)
-	// @Index(name = TABLE + IndexNameMiddle + extensionString02_FIELDNAME)
-	// @CheckPersist(allowEmpty = true)
-	// private String extensionString02;
-	//
-	// public static final String extensionString03_FIELDNAME = "extensionString03";
-	// @FieldDescribe("扩充文本字段03.")
-	// @Column(length = length_255B, name = ColumnNamePrefix +
-	// extensionString03_FIELDNAME)
-	// @Index(name = TABLE + IndexNameMiddle + extensionString03_FIELDNAME)
-	// @CheckPersist(allowEmpty = true)
-	// private String extensionString03;
-	//
-	// public static final String extensionString04_FIELDNAME = "extensionString04";
-	// @FieldDescribe("扩充文本字段04.")
-	// @Column(length = length_255B, name = ColumnNamePrefix +
-	// extensionString04_FIELDNAME)
-	// @Index(name = TABLE + IndexNameMiddle + extensionString04_FIELDNAME)
-	// @CheckPersist(allowEmpty = true)
-	// private String extensionString04;
-	//
-	// public static final String extensionString05_FIELDNAME = "extensionString05";
-	// @FieldDescribe("扩充文本字段05.")
-	// @Column(length = length_255B, name = ColumnNamePrefix +
-	// extensionString05_FIELDNAME)
-	// @Index(name = TABLE + IndexNameMiddle + extensionString05_FIELDNAME)
-	// @CheckPersist(allowEmpty = true)
-	// private String extensionString05;
-	//
-	// public static final String extensionString06_FIELDNAME = "extensionString06";
-	// @FieldDescribe("扩充文本字段06.")
-	// @Column(length = length_255B, name = ColumnNamePrefix +
-	// extensionString06_FIELDNAME)
-	// @Index(name = TABLE + IndexNameMiddle + extensionString06_FIELDNAME)
-	// @CheckPersist(allowEmpty = true)
-	// private String extensionString06;
-	//
-	// public static final String extensionString07_FIELDNAME = "extensionString07";
-	// @FieldDescribe("扩充文本字段07.")
-	// @Column(length = length_255B, name = ColumnNamePrefix +
-	// extensionString07_FIELDNAME)
-	// @Index(name = TABLE + IndexNameMiddle + extensionString07_FIELDNAME)
-	// @CheckPersist(allowEmpty = true)
-	// private String extensionString07;
-	//
-	// public static final String extensionString08_FIELDNAME = "extensionString08";
-	// @FieldDescribe("扩充文本字段08.")
-	// @Column(length = length_255B, name = ColumnNamePrefix +
-	// extensionString08_FIELDNAME)
-	// @Index(name = TABLE + IndexNameMiddle + extensionString08_FIELDNAME)
-	// @CheckPersist(allowEmpty = true)
-	// private String extensionString08;
-	//
-	// public static final String extensionString09_FIELDNAME = "extensionString09";
-	// @FieldDescribe("扩充文本字段09.")
-	// @Column(length = length_255B, name = ColumnNamePrefix +
-	// extensionString09_FIELDNAME)
-	// @Index(name = TABLE + IndexNameMiddle + extensionString09_FIELDNAME)
-	// @CheckPersist(allowEmpty = true)
-	// private String extensionString09;
-	//
-	// public static final String extensionString10_FIELDNAME = "extensionString10";
-	// @FieldDescribe("扩充文本字段10.")
-	// @Column(length = length_255B, name = ColumnNamePrefix +
-	// extensionString10_FIELDNAME)
-	// @Index(name = TABLE + IndexNameMiddle + extensionString10_FIELDNAME)
-	// @CheckPersist(allowEmpty = true)
-	// private String extensionString10;
-	//
-	// public static final String extensionDouble01_FIELDNAME = "extensionDouble01";
-	// @FieldDescribe("扩充数字字段01.")
-	// @Column(name = ColumnNamePrefix + extensionDouble01_FIELDNAME)
-	// @Index(name = TABLE + IndexNameMiddle + extensionDouble01_FIELDNAME)
-	// @CheckPersist(allowEmpty = true)
-	// private Double extensionDouble01;
-	//
-	// public static final String extensionDouble02_FIELDNAME = "extensionDouble02";
-	// @FieldDescribe("扩充数字字段02.")
-	// @Column(name = ColumnNamePrefix + extensionDouble02_FIELDNAME)
-	// @Index(name = TABLE + IndexNameMiddle + extensionDouble02_FIELDNAME)
-	// @CheckPersist(allowEmpty = true)
-	// private Double extensionDouble02;
-	//
-	// public static final String extensionDouble03_FIELDNAME = "extensionDouble03";
-	// @FieldDescribe("扩充数字字段03.")
-	// @Column(name = ColumnNamePrefix + extensionDouble03_FIELDNAME)
-	// @Index(name = TABLE + IndexNameMiddle + extensionDouble03_FIELDNAME)
-	// @CheckPersist(allowEmpty = true)
-	// private Double extensionDouble03;
-	//
-	// public static final String extensionDouble04_FIELDNAME = "extensionDouble04";
-	// @FieldDescribe("扩充数字字段04.")
-	// @Column(name = ColumnNamePrefix + extensionDouble04_FIELDNAME)
-	// @Index(name = TABLE + IndexNameMiddle + extensionDouble04_FIELDNAME)
-	// @CheckPersist(allowEmpty = true)
-	// private Double extensionDouble04;
-	//
-	// public static final String extensionDouble05_FIELDNAME = "extensionDouble05";
-	// @FieldDescribe("扩充数字字段05.")
-	// @Column(name = ColumnNamePrefix + extensionDouble05_FIELDNAME)
-	// @Index(name = TABLE + IndexNameMiddle + extensionDouble05_FIELDNAME)
-	// @CheckPersist(allowEmpty = true)
-	// private Double extensionDouble05;
-	//
-	// public static final String extensionBoolean01_FIELDNAME =
-	// "extensionBoolean01";
-	// @FieldDescribe("扩充布尔字段01.")
-	// @Column(name = ColumnNamePrefix + extensionBoolean01_FIELDNAME)
-	// @Index(name = TABLE + IndexNameMiddle + extensionBoolean01_FIELDNAME)
-	// @CheckPersist(allowEmpty = true)
-	// private Boolean extensionBoolean01;
-	//
-	// public static final String extensionBoolean02_FIELDNAME =
-	// "extensionBoolean02";
-	// @FieldDescribe("扩充布尔字段02.")
-	// @Column(name = ColumnNamePrefix + extensionBoolean02_FIELDNAME)
-	// @Index(name = TABLE + IndexNameMiddle + extensionBoolean02_FIELDNAME)
-	// @CheckPersist(allowEmpty = true)
-	// private Boolean extensionBoolean02;
-	//
-	// public static final String extensionBoolean03_FIELDNAME =
-	// "extensionBoolean03";
-	// @FieldDescribe("扩充布尔字段03.")
-	// @Column(name = ColumnNamePrefix + extensionBoolean03_FIELDNAME)
-	// @Index(name = TABLE + IndexNameMiddle + extensionBoolean03_FIELDNAME)
-	// @CheckPersist(allowEmpty = true)
-	// private Boolean extensionBoolean03;
-	//
-	// public static final String extensionBoolean04_FIELDNAME =
-	// "extensionBoolean04";
-	// @FieldDescribe("扩充布尔字段04.")
-	// @Column(name = ColumnNamePrefix + extensionBoolean04_FIELDNAME)
-	// @Index(name = TABLE + IndexNameMiddle + extensionBoolean04_FIELDNAME)
-	// @CheckPersist(allowEmpty = true)
-	// private Boolean extensionBoolean04;
-	//
-	// public static final String extensionBoolean05_FIELDNAME =
-	// "extensionBoolean05";
-	// @FieldDescribe("扩充布尔字段05.")
-	// @Column(name = ColumnNamePrefix + extensionBoolean05_FIELDNAME)
-	// @Index(name = TABLE + IndexNameMiddle + extensionBoolean05_FIELDNAME)
-	// @CheckPersist(allowEmpty = true)
-	// private Boolean extensionBoolean05;
 
 	public String getTitle() {
 		return title;
@@ -691,14 +543,6 @@ public class Work extends SliceJpaObject {
 	public void setForm(String form) {
 		this.form = form;
 	}
-
-	// public Boolean getExecuted() {
-	// return executed;
-	// }
-	//
-	// public void setExecuted(Boolean executed) {
-	// this.executed = executed;
-	// }
 
 	public Integer getErrorRetry() {
 		return errorRetry;

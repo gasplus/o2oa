@@ -13,6 +13,8 @@ import com.x.organization.core.express.Organization;
 import com.x.query.assemble.designer.factory.QueryFactory;
 import com.x.query.assemble.designer.factory.RevealFactory;
 import com.x.query.assemble.designer.factory.StatFactory;
+import com.x.query.assemble.designer.factory.StatementFactory;
+import com.x.query.assemble.designer.factory.TableFactory;
 import com.x.query.assemble.designer.factory.ViewFactory;
 import com.x.query.core.entity.Query;
 import com.x.query.core.entity.schema.Statement;
@@ -57,6 +59,24 @@ public class Business {
 		return view;
 	}
 
+	private TableFactory table;
+
+	public TableFactory table() throws Exception {
+		if (null == this.table) {
+			this.table = new TableFactory(this);
+		}
+		return table;
+	}
+	
+	private StatementFactory statement;
+
+	public StatementFactory statement() throws Exception {
+		if (null == this.statement) {
+			this.statement = new StatementFactory(this);
+		}
+		return statement;
+	}
+
 	private StatFactory stat;
 
 	public StatFactory stat() throws Exception {
@@ -93,68 +113,74 @@ public class Business {
 
 	public boolean editable(EffectivePerson effectivePerson, Query o) throws Exception {
 		boolean result = false;
-		if (effectivePerson.isManager()
-				|| (this.organization().person().hasRole(effectivePerson, OrganizationDefinition.QueryManager))) {
+		if (effectivePerson.isManager() || (this.organization().person().hasRole(effectivePerson,
+				OrganizationDefinition.Manager, OrganizationDefinition.QueryManager))) {
 			result = true;
 		}
 		if (!result && (null != o)) {
-			if (effectivePerson.isUser(o.getControllerList()) || effectivePerson.isUser(o.getCreatorPerson())) {
+			if (effectivePerson.isPerson(o.getControllerList()) || effectivePerson.isPerson(o.getCreatorPerson())) {
 				result = true;
 			}
 		}
 		return result;
 	}
 
-	public boolean readable(EffectivePerson effectivePerson, Table o) throws Exception {
-		boolean result = false;
-		if (null != o) {
-			if (ListTools.isEmpty(o.getReadPersonList()) && ListTools.isEmpty(o.getReadUnitList())) {
-				result = true;
-			}
-			if (!result) {
-				if (effectivePerson.isManager() || (this.organization().person().hasRole(effectivePerson,
-						OrganizationDefinition.QueryManager))) {
-					result = true;
-				}
-				if (!result) {
-					if (effectivePerson.isUser(o.getEditPersonList())
-							|| effectivePerson.isUser(o.getReadPersonList())) {
-						result = true;
-					}
-					if (!result && (ListTools.isNotEmpty(o.getEditUnitList())
-							|| ListTools.isNotEmpty(o.getReadUnitList()))) {
-						List<String> units = this.organization().unit()
-								.listWithPerson(effectivePerson.getDistinguishedName());
-						if (ListTools.containsAny(units, o.getEditUnitList())
-								|| ListTools.containsAny(units, o.getReadUnitList())) {
-							result = true;
-						}
-					}
-				}
-			}
-		}
-		return result;
-	}
+//	public boolean readable(EffectivePerson effectivePerson, Table o) throws Exception {
+//		boolean result = false;
+//		if (null != o) {
+//			if (ListTools.isEmpty(o.getReadPersonList()) && ListTools.isEmpty(o.getReadUnitList())) {
+//				result = true;
+//			}
+//			if (!result) {
+//				if (effectivePerson.isManager() || (this.organization().person().hasRole(effectivePerson,
+//						OrganizationDefinition.Manager, OrganizationDefinition.QueryManager))) {
+//					result = true;
+//				}
+//				if (!result) {
+//					if (effectivePerson.isPerson(o.getEditPersonList())
+//							|| effectivePerson.isPerson(o.getReadPersonList())) {
+//						result = true;
+//					}
+//					if (!result && (ListTools.isNotEmpty(o.getEditUnitList())
+//							|| ListTools.isNotEmpty(o.getReadUnitList()))) {
+//						List<String> units = this.organization().unit()
+//								.listWithPerson(effectivePerson.getDistinguishedName());
+//						if (ListTools.containsAny(units, o.getEditUnitList())
+//								|| ListTools.containsAny(units, o.getReadUnitList())) {
+//							result = true;
+//						}
+//					}
+//				}
+//			}
+//		}
+//		return result;
+//	}
 
-	public boolean editable(EffectivePerson effectivePerson, Table o) throws Exception {
-		boolean result = false;
-		if (effectivePerson.isManager()
-				|| (this.organization().person().hasRole(effectivePerson, OrganizationDefinition.QueryManager))) {
-			result = true;
-		}
-		if (!result && (null != o)) {
-			if (effectivePerson.isUser(o.getEditPersonList())) {
-				result = true;
-			}
-			if (!result && ListTools.isNotEmpty(o.getEditUnitList())) {
-				List<String> units = this.organization().unit().listWithPerson(effectivePerson.getDistinguishedName());
-				if (ListTools.containsAny(units, o.getEditUnitList())) {
-					result = true;
-				}
-			}
-		}
-		return result;
-	}
+//	public boolean editable(EffectivePerson effectivePerson, Table o) throws Exception {
+//		boolean result = false;
+//		if (effectivePerson.isManager() || (this.organization().person().hasRole(effectivePerson,
+//				OrganizationDefinition.Manager, OrganizationDefinition.QueryManager))) {
+//			result = true;
+//		}
+//		if (!result && (null != o)) {
+//			if (ListTools.isEmpty(o.getEditPersonList()) && ListTools.isEmpty(o.getEditUnitList())) {
+//				result = true;
+//				if (!result) {
+//					if (effectivePerson.isPerson(o.getEditPersonList())) {
+//						result = true;
+//					}
+//					if (!result && ListTools.isNotEmpty(o.getEditUnitList())) {
+//						List<String> units = this.organization().unit()
+//								.listWithPerson(effectivePerson.getDistinguishedName());
+//						if (ListTools.containsAny(units, o.getEditUnitList())) {
+//							result = true;
+//						}
+//					}
+//				}
+//			}
+//		}
+//		return result;
+//	}
 
 	public boolean executable(EffectivePerson effectivePerson, Statement o) throws Exception {
 		boolean result = false;
@@ -164,8 +190,9 @@ public class Business {
 			}
 			if (!result) {
 				if (effectivePerson.isManager()
-						|| (this.organization().person().hasRole(effectivePerson, OrganizationDefinition.QueryManager))
-						|| effectivePerson.isUser(o.getExecutePersonList())) {
+						|| (this.organization().person().hasRole(effectivePerson, OrganizationDefinition.Manager,
+								OrganizationDefinition.QueryManager))
+						|| effectivePerson.isPerson(o.getExecutePersonList())) {
 					result = true;
 				}
 				if ((!result) && ListTools.isNotEmpty(o.getExecuteUnitList())) {

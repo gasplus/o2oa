@@ -17,13 +17,26 @@ import com.x.query.core.entity.Item;
 
 public class DocumentInfoService {
 
-//	public List<Document> list( EntityManagerContainer emc, List<String> ids ) throws Exception {
-//		if( ids == null || ids.isEmpty() ){
-//			return null;
-//		}
-//		Business business = new Business( emc );
-//		return business.getDocumentFactory().list( ids );
-//	}
+	@SuppressWarnings("unchecked")
+	public List<String> listByCategoryId( EntityManagerContainer emc, String categoryId, Integer maxCount ) throws Exception {
+		if( categoryId == null || categoryId.isEmpty() ){
+			return null;
+		}
+		Business business = new Business( emc );
+		return business.getDocumentFactory().listByCategoryId( categoryId, maxCount );
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<String> listByAppId( EntityManagerContainer emc, String appId, String documentType, Integer maxCount ) throws Exception {
+		if( appId == null || appId.isEmpty() ){
+			return null;
+		}
+		if( documentType == null || documentType.isEmpty() ){
+			documentType = "全部";
+		}
+		Business business = new Business( emc );
+		return business.getDocumentFactory().listByAppId( appId, documentType, maxCount );
+	}
 	
 	@SuppressWarnings("unchecked")
 	public List<String> listByCategoryId( EntityManagerContainer emc, String categoryId ) throws Exception {
@@ -31,7 +44,7 @@ public class DocumentInfoService {
 			return null;
 		}
 		Business business = new Business( emc );
-		return business.getDocumentFactory().listByCategoryId( categoryId );
+		return business.getDocumentFactory().listByCategoryId( categoryId, 10000 );
 	}
 
 	public Document get(EntityManagerContainer emc, String id) throws Exception {
@@ -49,6 +62,14 @@ public class DocumentInfoService {
 		Business business = new Business( emc );
 		return business.getDocumentFactory().countByCategoryId(categoryId);
 	}
+	
+	public Long countByAppId(EntityManagerContainer emc, String appId) throws Exception {
+		if( appId == null || appId.isEmpty() ){
+			return null;
+		}
+		Business business = new Business( emc );
+		return business.getDocumentFactory().countByAppId(appId);
+	}
 
 	public Document save( EntityManagerContainer emc, Document wrapIn ) throws Exception {
 		if( wrapIn == null ){
@@ -59,6 +80,11 @@ public class DocumentInfoService {
 		document = emc.find( wrapIn.getId(), Document.class );
 		emc.beginTransaction( Document.class );
 		emc.beginTransaction(Log.class);
+		
+		if( wrapIn.getTitle() != null &&  wrapIn.getTitle().length() > 70 ) {
+			wrapIn.setTitle( wrapIn.getTitle().substring(0, 70) );
+		}
+		
 		if( document == null ){
 			document = new Document();
 			wrapIn.copyTo( document );
@@ -146,10 +172,10 @@ public class DocumentInfoService {
 			List<String> viewAbleCategoryIds, String title, List<String> publisherList, List<String> createDateList,  
 			List<String> publishDateList,  List<String> statusList, String documentType, List<String>  creatorUnitNameList,
 			List<String> importBatchNames, List<String> personNames, List<String> unitNames, 
-			List<String> groupNames,  Boolean manager ) throws Exception {
+			List<String> groupNames,  Boolean manager, Date lastedPublishTime ) throws Exception {
 		Business business = new Business(emc);	
 		return business.getDocumentFactory().countWithCondition( viewAbleCategoryIds, title, publisherList, createDateList, 
-				publishDateList, statusList, documentType, creatorUnitNameList, importBatchNames, personNames, unitNames, groupNames, manager );
+				publishDateList, statusList, documentType, creatorUnitNameList, importBatchNames, personNames, unitNames, groupNames, manager, lastedPublishTime );
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -157,7 +183,7 @@ public class DocumentInfoService {
 			String id, Integer maxCount, List<String> viewAbleCategoryIds, String title, List<String> publisherList, List<String> createDateList,  
 			List<String> publishDateList,  List<String> statusList, String documentType, List<String>  creatorUnitNameList, 
 			List<String> importBatchNames, List<String> personNames, List<String> unitNames, 
-			List<String> groupNames, String orderField, String order, Boolean manager ) throws Exception {
+			List<String> groupNames, String orderField, String order, Boolean manager, Date lastedPublishTime ) throws Exception {
 		Business business = new Business(emc);
 		Document document = null;
 		Object sequenceFieldValue = null;
@@ -171,7 +197,7 @@ public class DocumentInfoService {
 			}
 		}		
 		return business.getDocumentFactory().listNextWithCondition( maxCount, viewAbleCategoryIds, title, publisherList, createDateList, publishDateList, 
-				statusList, documentType, creatorUnitNameList, importBatchNames, personNames, unitNames, groupNames, sequenceFieldValue, orderField, order,  manager );
+				statusList, documentType, creatorUnitNameList, importBatchNames, personNames, unitNames, groupNames, sequenceFieldValue, orderField, order,  manager, lastedPublishTime );
 	}
 
 	@SuppressWarnings("unchecked")

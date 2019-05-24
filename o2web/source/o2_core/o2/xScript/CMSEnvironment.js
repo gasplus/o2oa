@@ -362,16 +362,16 @@ MWF.xScript.CMSEnvironment = function(ev){
             }
             switch (getUnitMethod){
                 case "current":
-                    var data = {"identity":(typeOf(name)==="object") ? (name.distinguishedName || name.id || name.unique || name.name) : name,"level":flag};
-                    orgActions.getUnitWithIdentityAndLevel(data, function(json){ v = json.data; }, null, false);
+                    var data = {"identityList":getNameFlag(name)};
+                    orgActions.listUnitWithIdentity(data, function(json){ v = json.data; v=(v&&v.length===1) ? v[0] : v }, null, false);
                     break;
                 case "type":
                     var data = {"identity":(typeOf(name)==="object") ? (name.distinguishedName || name.id || name.unique || name.name) : name,"type":flag};
                     orgActions.getUnitWithIdentityAndType(data, function(json){ v = json.data; }, null, false);
                     break;
                 case "level":
-                    var data = {"identityList":getNameFlag(name)};
-                    orgActions.listUnitWithIdentity(data, function(json){ v = json.data; }, null, false);
+                    var data = {"identity":(typeOf(name)==="object") ? (name.distinguishedName || name.id || name.unique || name.name) : name,"level":flag};
+                    orgActions.getUnitWithIdentityAndLevel(data, function(json){ v = json.data; }, null, false);
                     break;
             }
             return v;
@@ -1065,8 +1065,63 @@ MWF.xScript.CMSEnvironment = function(ev){
     this.status = ev.status;
     this.session = layout.desktop.session;
     this.Actions = o2.Actions;
-};
 
+    this.query = function(option){
+        // options = {
+        //      "name": "statementName",
+        //      "data": "json data",
+        //      "firstResult": 1,
+        //      "maxResults": 100,
+        //      "success": function(){},
+        //      "error": function(){},
+        //      "async": true or false, default is true
+        // }
+        if (option){
+            var json = (option.data) || {};
+            if (option.firstResult) json.firstResult = option.firstResult.toInt();
+            if (option.maxResults) json.maxResults = option.maxResults.toInt();
+            o2.Actions.get("x_query_assemble_surface").executeStatement(option.name, json, success, error, options.async);
+        }
+    };
+    this.Table = MWF.xScript.createTable();
+};
+MWF.xScript.createTable = function(){
+    return function(name){
+        this.name = name;
+        this.action = o2.Actions.get("x_query_assemble_surface");
+
+        this.listRowNext = function(id, count, success, error, async){
+            this.action.listRowNext(this.name, id, count, success, error, async);
+        };
+        this.listRowPrev = function(id, count, success, error, async){
+            this.action.listRowPrev(this.name, id, count, success, error, async);
+        };
+        this.listRowPrev = function(id, count, success, error, async){
+            this.action.listRowPrev(this.name, id, count, success, error, async);
+        };
+        this.listRowSelectWhere = function(where, success, error, async){
+            this.action.listRowSelectWhere(this.name, where, success, error, async);
+        };
+        this.listRowCountWhere = function(where, success, error, async){
+            this.action.listRowCountWhere(this.name, where, success, error, async);
+        };
+        this.deleteRow = function(id, success, error, async){
+            this.action.deleteRow(this.name, id, success, error, async);
+        };
+        this.deleteAllRow = function(success, error, async){
+            this.action.deleteAllRow(this.name, success, error, async);
+        };
+        this.getRow = function(id, success, error, async){
+            this.action.getRow(this.name, id, success, error, async);
+        };
+        this.insertRow = function(data, success, error, async){
+            this.action.insertRow(this.name, data, success, error, async);
+        };
+        this.updateRow = function(id, data, success, error, async){
+            this.action.updateRow(this.name, id, data, success, error, async);
+        };
+    }
+};
 MWF.xScript.CMSJSONData = function(data, callback, key, parent){
     var getter = function(data, callback, k, _self){
         return function(){return (["array","object"].indexOf(typeOf(data[k]))===-1) ? data[k] : new MWF.xScript.CMSJSONData(data[k], callback, k, _self);};
@@ -1335,10 +1390,10 @@ MWF.xScript.createCMSDict = function(application){
 
         var encodePath = function( path ){
             var arr = path.split(/\./g);
-            // var ar = arr.map(function(v){
-            //     return encodeURIComponent(v);
-            // });
-            return arr.join("/");
+            var ar = arr.map(function(v){
+                return encodeURIComponent(v);
+            });
+            return ar.join("/");
         };
 
         this.get = function(path, success, failure){
@@ -1351,7 +1406,7 @@ MWF.xScript.createCMSDict = function(application){
                     if (success) success(json.data);
                 }, function(xhr, text, error){
                     if (failure) failure(xhr, text, error);
-                }, false);
+                }, false, false);
             }else{
                 action[ ( (enableAnonymous && type == "cms") ? "getDictRootAnonymous" : "getDictRoot" ) ](encodeURIComponent(this.name), applicationId, function(json){
                     value = json.data;

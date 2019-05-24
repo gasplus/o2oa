@@ -1,6 +1,5 @@
 package com.x.processplatform.core.entity.element;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Basic;
@@ -21,7 +20,6 @@ import org.apache.openjpa.persistence.jdbc.ElementColumn;
 import org.apache.openjpa.persistence.jdbc.ElementIndex;
 import org.apache.openjpa.persistence.jdbc.Index;
 
-import com.x.base.core.entity.AbstractPersistenceProperties;
 import com.x.base.core.entity.JpaObject;
 import com.x.base.core.entity.annotation.CheckPersist;
 import com.x.base.core.entity.annotation.ContainerEntity;
@@ -114,7 +112,7 @@ public class Service extends Activity {
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle
 			+ readIdentityList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle + readIdentityList_FIELDNAME
 					+ JoinIndexNameSuffix))
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name =  ORDERCOLUMNCOLUMN)
 	@ElementColumn(length = length_255B, name = ColumnNamePrefix + readIdentityList_FIELDNAME)
 	@ElementIndex(name = TABLE + IndexNameMiddle + readIdentityList_FIELDNAME + ElementIndexNameSuffix)
 	@CheckPersist(allowEmpty = true)
@@ -124,7 +122,7 @@ public class Service extends Activity {
 	@PersistentCollection(fetch = FetchType.EAGER)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + readUnitList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + readUnitList_FIELDNAME + JoinIndexNameSuffix))
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name =  ORDERCOLUMNCOLUMN)
 	@ElementColumn(length = length_255B, name = ColumnNamePrefix + readUnitList_FIELDNAME)
 	@ElementIndex(name = TABLE + IndexNameMiddle + readUnitList_FIELDNAME + ElementIndexNameSuffix)
 	@CheckPersist(allowEmpty = true)
@@ -134,7 +132,7 @@ public class Service extends Activity {
 	@PersistentCollection(fetch = FetchType.EAGER)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + readGroupList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + readGroupList_FIELDNAME + JoinIndexNameSuffix))
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name =  ORDERCOLUMNCOLUMN)
 	@ElementColumn(length = length_255B, name = ColumnNamePrefix + readGroupList_FIELDNAME)
 	@ElementIndex(name = TABLE + IndexNameMiddle + readGroupList_FIELDNAME + ElementIndexNameSuffix)
 	@CheckPersist(allowEmpty = true)
@@ -165,7 +163,7 @@ public class Service extends Activity {
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle
 			+ readDataPathList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle + readDataPathList_FIELDNAME
 					+ JoinIndexNameSuffix))
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name =  ORDERCOLUMNCOLUMN)
 	@ElementColumn(length = JpaObject.length_255B, name = ColumnNamePrefix + readDataPathList_FIELDNAME)
 	@ElementIndex(name = TABLE + IndexNameMiddle + readDataPathList_FIELDNAME + ElementIndexNameSuffix)
 	@CheckPersist(allowEmpty = true)
@@ -176,7 +174,7 @@ public class Service extends Activity {
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle
 			+ reviewIdentityList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle
 					+ reviewIdentityList_FIELDNAME + JoinIndexNameSuffix))
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name =  ORDERCOLUMNCOLUMN)
 	@ElementColumn(length = length_255B, name = ColumnNamePrefix + reviewIdentityList_FIELDNAME)
 	@ElementIndex(name = TABLE + IndexNameMiddle + reviewIdentityList_FIELDNAME + ElementIndexNameSuffix)
 	@CheckPersist(allowEmpty = true)
@@ -186,7 +184,7 @@ public class Service extends Activity {
 	@PersistentCollection(fetch = FetchType.EAGER)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + reviewUnitList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + reviewUnitList_FIELDNAME + JoinIndexNameSuffix))
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name =  ORDERCOLUMNCOLUMN)
 	@ElementColumn(length = length_255B, name = ColumnNamePrefix + reviewUnitList_FIELDNAME)
 	@ElementIndex(name = TABLE + IndexNameMiddle + reviewUnitList_FIELDNAME + ElementIndexNameSuffix)
 	@CheckPersist(allowEmpty = true)
@@ -196,7 +194,7 @@ public class Service extends Activity {
 	@PersistentCollection(fetch = FetchType.EAGER)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + reviewGroupList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + reviewGroupList_FIELDNAME + JoinIndexNameSuffix))
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name =  ORDERCOLUMNCOLUMN)
 	@ElementColumn(length = length_255B, name = ColumnNamePrefix + reviewGroupList_FIELDNAME)
 	@ElementIndex(name = TABLE + IndexNameMiddle + reviewGroupList_FIELDNAME + ElementIndexNameSuffix)
 	@CheckPersist(allowEmpty = true)
@@ -227,7 +225,7 @@ public class Service extends Activity {
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle
 			+ reviewDataPathList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle
 					+ reviewDataPathList_FIELDNAME + JoinIndexNameSuffix))
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name =  ORDERCOLUMNCOLUMN)
 	@ElementColumn(length = JpaObject.length_255B, name = ColumnNamePrefix + reviewDataPathList_FIELDNAME)
 	@ElementIndex(name = TABLE + IndexNameMiddle + reviewDataPathList_FIELDNAME + ElementIndexNameSuffix)
 	@CheckPersist(allowEmpty = true)
@@ -336,7 +334,7 @@ public class Service extends Activity {
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle
 			+ trustAddressList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle + trustAddressList_FIELDNAME
 					+ JoinIndexNameSuffix))
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name =  ORDERCOLUMNCOLUMN)
 	@ElementColumn(length = JpaObject.length_32B, name = ColumnNamePrefix + trustAddressList_FIELDNAME)
 	@ElementIndex(name = TABLE + IndexNameMiddle + trustAddressList_FIELDNAME + ElementIndexNameSuffix)
 	@CheckPersist(allowEmpty = true)

@@ -6,13 +6,14 @@ import java.util.List;
 
 import com.x.base.core.project.AbstractContext;
 import com.x.base.core.project.gson.GsonPropertyObject;
-import com.x.base.core.project.http.EffectivePerson;
 import com.x.base.core.project.organization.OrganizationDefinition;
 import com.x.organization.core.express.group.GroupFactory;
 import com.x.organization.core.express.identity.IdentityFactory;
 import com.x.organization.core.express.person.PersonFactory;
 import com.x.organization.core.express.personattribute.PersonAttributeFactory;
 import com.x.organization.core.express.role.RoleFactory;
+import com.x.organization.core.express.trust.TrustFactory;
+import com.x.organization.core.express.trustlog.TrustLogFactory;
 import com.x.organization.core.express.unit.UnitFactory;
 import com.x.organization.core.express.unitattribute.UnitAttributeFactory;
 import com.x.organization.core.express.unitduty.UnitDutyFactory;
@@ -95,6 +96,24 @@ public class Organization {
 			this.unitDuty = new UnitDutyFactory(context);
 		}
 		return unitDuty;
+	}
+
+	private TrustFactory trust;
+
+	public TrustFactory trust() throws Exception {
+		if (null == this.trust) {
+			this.trust = new TrustFactory(context);
+		}
+		return trust;
+	}
+
+	private TrustLogFactory trustLog;
+
+	public TrustLogFactory trustLog() throws Exception {
+		if (null == this.trustLog) {
+			this.trustLog = new TrustLogFactory(context);
+		}
+		return trustLog;
 	}
 
 	/** 根据个人身份获取组织 */
@@ -216,15 +235,27 @@ public class Organization {
 
 	}
 
-	public Detail detail(EffectivePerson effectivePerson) throws Exception {
-		Detail o = new Detail();
-		o.setPerson(effectivePerson.getDistinguishedName());
-		o.setIdentityList(identity().listWithPerson(effectivePerson));
-		o.setUnitList(unit().listWithPerson(effectivePerson));
-		o.setUnitAllList(unit().listWithPersonSupNested(effectivePerson));
-		o.setGroupList(group().listWithPerson(effectivePerson.getDistinguishedName()));
-		o.setRoleList(role().listWithPerson(effectivePerson));
-		return o;
-	}
+//	public PersonDetail detail(EffectivePerson effectivePerson) throws Exception {
+//		PersonDetail o = new PersonDetail();
+//		o.setPerson(effectivePerson.getDistinguishedName());
+//		o.setIdentityList(identity().listWithPerson(effectivePerson));
+//		o.setUnitList(unit().listWithPerson(effectivePerson));
+//		o.setUnitAllList(unit().listWithPersonSupNested(effectivePerson));
+//		o.setGroupList(group().listWithPerson(effectivePerson.getDistinguishedName()));
+//		o.setRoleList(role().listWithPerson(effectivePerson));
+//		return o;
+//	}
+//
+//	public PersonDetail detail(String name) throws Exception {
+//		PersonDetail o = new PersonDetail();
+//		String person = this.person().get(name);
+//		o.setPerson(person);
+//		o.setIdentityList(identity().listWithPerson(person));
+//		o.setUnitList(unit().listWithPerson(person));
+//		o.setUnitAllList(unit().listWithPersonSupNested(person));
+//		o.setGroupList(group().listWithPerson(person));
+//		o.setRoleList(role().listWithPerson(person));
+//		return o;
+//	}
 
 }

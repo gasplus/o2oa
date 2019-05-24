@@ -43,6 +43,22 @@ MWF.xApplication.process.FormDesigner.Module.Table$Td = MWF.FCTable$Td = new Cla
 		    	"action": "splitCell",
 		    	"title": MWF.APPFD.LP.formAction.splitCell
 		    }
+		],
+		"injectActions" : [
+			{
+				"name" : "top",
+				"styles" : "injectActionTop",
+				"event" : "click",
+				"action" : "injectTop",
+				"title": MWF.APPFD.LP.formAction["insertTop"]
+			},
+			{
+				"name" : "bottom",
+				"styles" : "injectActionBottom",
+				"event" : "click",
+				"action" : "injectBottom",
+				"title": MWF.APPFD.LP.formAction["insertBottom"]
+			}
 		]
 	},
 	
@@ -686,6 +702,7 @@ MWF.xApplication.process.FormDesigner.Module.Table$Td = MWF.FCTable$Td = new Cla
 	},
 	
 	_deleteRow:function(){
+		var _form = this.form;
 		var tr = this.node.getParent("tr");
 		var table = tr.getParent("table");
 		var rowIndex = tr.rowIndex;
@@ -717,7 +734,6 @@ MWF.xApplication.process.FormDesigner.Module.Table$Td = MWF.FCTable$Td = new Cla
 			this.parentContainer.destroy();
 		}else{
 			tds = tr.getElements("td");
-			
 			tds.each(function(td){
 				var module = td.retrieve("module");
 				if (module){
@@ -727,7 +743,9 @@ MWF.xApplication.process.FormDesigner.Module.Table$Td = MWF.FCTable$Td = new Cla
 			});
 			tr.destroy();
 		}
-		this.form.selected();
+        _form.currentSelectedModule = null;
+        _form.selected();
+        _form = null;
 	},
 	deleteCol: function(e){
 		var module = this;
@@ -739,6 +757,7 @@ MWF.xApplication.process.FormDesigner.Module.Table$Td = MWF.FCTable$Td = new Cla
 		}, null);
 	},
 	_deleteCol: function(){
+		var _form = this.form;
 		var tr = this.node.getParent("tr");
 		var table = tr.getParent("table");
 		var colIndex = this.__getCellIndex(this.node);
@@ -757,6 +776,9 @@ MWF.xApplication.process.FormDesigner.Module.Table$Td = MWF.FCTable$Td = new Cla
 				}
 			});
 		}
+		_form.currentSelectedModule = null;
+		_form.selected();
+		_form = null;
 	},
 
 //	__getTdByIndex11: function(tr, idx){
@@ -902,5 +924,21 @@ MWF.xApplication.process.FormDesigner.Module.Table$Td = MWF.FCTable$Td = new Cla
 		}
 		this.form._completeSelectMulti();
 	}
+
+	//_showInjectAction : function( module ){
+	//	if ( module.moveNode ){
+	//		module.moveNode.setStyle("display","none");
+	//	}
+    //
+	//	this.draggingModule = module;
+	//	if( !this.node.getFirst() ){
+	//		this.inject( "top" );
+	//		return;
+	//	}
+    //
+	//	if( !this.injectActionArea )this._createInjectAction();
+	//	this.injectActionArea.setStyle("display","");
+	//	this._setInjectActionAreaPosition();
+	//}
 	
 });

@@ -25,7 +25,7 @@ MWF.xApplication.process.FormDesigner.Module.Htmleditor = MWF.FCHtmleditor = new
 	
 	_createMoveNode: function(){
 		this.moveNode = new Element("div", {
-			"MWFType": "itmleditor",
+			"MWFType": "htmleditor",
 			"id": this.json.id,
 			"styles": this.css.moduleNodeMove,
 			"events": {
@@ -132,7 +132,7 @@ MWF.xApplication.process.FormDesigner.Module.Htmleditor = MWF.FCHtmleditor = new
 
 		this.loadCkeditor(config);
 		this._setNodeProperty();
-        if (!this.form.isSubform) this._createIconAction();
+        if (!this.form.isSubform) this._createIconAction() ;
 		this._setNodeEvent();
 	},
 	//ckeditor

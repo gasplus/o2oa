@@ -35,14 +35,18 @@ class ActionListAll extends ActionBase {
 				List<Component> os = emc.listAll(Component.class);
 				if (os.isEmpty()) {
 					/* 一个模块都没有新建默认 */
-					emc.beginTransaction(Component.class);
-					for (String name : DEFAULT_COMPONENT_LIST) {
-						Component o = this.createComponent(name);
-						emc.persist(o, CheckPersistType.all);
-						os.add(o);
+					synchronized (ActionListAll.class) {
+						if (emc.listAll(Component.class).isEmpty()) {
+							emc.beginTransaction(Component.class);
+							for (String name : DEFAULT_COMPONENT_LIST) {
+								Component o = this.createComponent(name);
+								emc.persist(o, CheckPersistType.all);
+								os.add(o);
+							}
+							emc.commit();
+							ApplicationCache.notify(Component.class);
+						}
 					}
-					emc.commit();
-					ApplicationCache.notify(Component.class);
 				}
 				wos = Wo.copier.copy(os);
 				wos = wos.stream().sorted(
@@ -130,20 +134,20 @@ class ActionListAll extends ActionBase {
 			o.setIconPath("appicon.png");
 			o.setVisible(true);
 			break;
-		case COMPONENT_STRATEGY:
-			o.setName(COMPONENT_STRATEGY);
-			o.setPath(COMPONENT_STRATEGY);
-			o.setTitle("战略管理");
-			o.setIconPath("appicon.png");
-			o.setVisible(true);
-			break;
-		case COMPONENT_REPORT:
-			o.setName(COMPONENT_REPORT);
-			o.setPath(COMPONENT_REPORT);
-			o.setTitle("工作报告");
-			o.setIconPath("appicon.png");
-			o.setVisible(true);
-			break;
+//		case COMPONENT_STRATEGY:
+//			o.setName(COMPONENT_STRATEGY);
+//			o.setPath(COMPONENT_STRATEGY);
+//			o.setTitle("战略管理");
+//			o.setIconPath("appicon.png");
+//			o.setVisible(true);
+//			break;
+//		case COMPONENT_REPORT:
+//			o.setName(COMPONENT_REPORT);
+//			o.setPath(COMPONENT_REPORT);
+//			o.setTitle("工作报告");
+//			o.setIconPath("appicon.png");
+//			o.setVisible(true);
+//			break;
 		case COMPONENT_MINDER:
 			o.setName(COMPONENT_MINDER);
 			o.setPath(COMPONENT_MINDER);
@@ -155,6 +159,13 @@ class ActionListAll extends ActionBase {
 			o.setName(COMPONENT_CALENDAR);
 			o.setPath(COMPONENT_CALENDAR);
 			o.setTitle("日程安排");
+			o.setIconPath("appicon.png");
+			o.setVisible(true);
+			break;
+		case COMPONENT_ANN:
+			o.setName(COMPONENT_ANN);
+			o.setPath(COMPONENT_ANN);
+			o.setTitle("神经网络");
 			o.setIconPath("appicon.png");
 			o.setVisible(true);
 			break;

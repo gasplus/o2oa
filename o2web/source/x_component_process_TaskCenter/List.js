@@ -801,7 +801,7 @@ MWF.xApplication.process.TaskCenter.List.Item = new Class({
 
     openTask: function(e){
         //     this._getJobByTask(function(data){
-        var options = {"workId": this.data.work, "appId": this.data.work};
+        var options = {"workId": this.data.work, "appId": "process.Work"+this.data.work};
         this.list.app.desktop.openApplication(e, "process.Work", options);
         //     }.bind(this));
     },
@@ -1034,7 +1034,8 @@ MWF.xApplication.process.TaskCenter.List.Item = new Class({
 
         if (taskList.length){
             var countNode = new Element("div", {"styles": this.list.css.logTaskCountNode}).inject(logActivityNode);
-            var text = (taskList.length>99) ? "99+" : taskList.length;
+            //var text = (taskList.length>99) ? "99+" : taskList.length;
+            var text = taskList.length;
             countNode.set("text", text);
         }
         new mBox.Tooltip({

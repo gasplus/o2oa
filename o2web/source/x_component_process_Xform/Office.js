@@ -170,7 +170,7 @@ MWF.xApplication.process.Xform.Office = MWF.APPOffice =  new Class({
         }
     },
     show: function(){
-        if (layout.desktop.currentApp && layout.desktop.currentApp.appId===this.form.app.appId){
+        if ((layout.desktop.currentApp && layout.desktop.currentApp.appId===this.form.app.appId) || this.form.app.inBrowser){
             var display = this.officeNode.retrieve("officeDisplay");
             if (display) this.officeNode.setStyle("display", display);
             if (this.officeOCX) this.officeOCX.Activate(true);
@@ -181,7 +181,7 @@ MWF.xApplication.process.Xform.Office = MWF.APPOffice =  new Class({
     },
 
     getFormId: function(){
-        var id = (this.form.businessData.work) ? this.form.businessData.work.id : this.form.businessData.workCompleted.id;
+        var id = (!this.form.businessData.workCompleted) ? this.form.businessData.work.id : this.form.businessData.workCompleted.id;
         return "form"+this.json.id+id;
     },
     getFileName: function(){
@@ -196,15 +196,15 @@ MWF.xApplication.process.Xform.Office = MWF.APPOffice =  new Class({
             case "ppt":
                 ename = "pptx";
         }
-        var id = (this.form.businessData.work) ? this.form.businessData.work.id : this.form.businessData.workCompleted.id;
+        var id = (!this.form.businessData.workCompleted) ? this.form.businessData.work.id : this.form.businessData.workCompleted.id;
         return "file"+this.json.id+id+"."+ename;
     },
     getOfficeObjectId: function(){
-        var id = (this.form.businessData.work) ? this.form.businessData.work.id : this.form.businessData.workCompleted.id;
+        var id = (!this.form.businessData.workCompleted) ? this.form.businessData.work.id : this.form.businessData.workCompleted.id;
         return "NTKOOCX"+this.json.id+id;
     },
     getFileInputName: function(){
-        var id = (this.form.businessData.work) ? this.form.businessData.work.id : this.form.businessData.workCompleted.id;
+        var id = (!this.form.businessData.workCompleted) ? this.form.businessData.work.id : this.form.businessData.workCompleted.id;
         return "fileInput"+this.json.id+id;
     },
     getTempleteUrl: function(){
@@ -250,7 +250,7 @@ MWF.xApplication.process.Xform.Office = MWF.APPOffice =  new Class({
         if (file){
             this.file = file;
             var url = "";
-            if (this.form.businessData.work){
+            if (!this.form.businessData.workCompleted){
                 url = this.form.workAction.action.actions.getAttachmentData.uri;
                 url = url.replace("{id}", encodeURIComponent(file.id));
                 return this.form.workAction.action.address+url.replace("{workid}", encodeURIComponent(this.form.businessData.work.id));
@@ -285,6 +285,8 @@ MWF.xApplication.process.Xform.Office = MWF.APPOffice =  new Class({
     startRevisions: function(){
         if (this.officeOCX && (this.officeOCX.DocType==1 || this.officeOCX.DocType==6)){
             this.officeOCX.ActiveDocument.Application.UserName = layout.desktop.session.user.name;
+            this.officeOCX.ActiveDocument.Application.UserInitials = layout.desktop.session.user.name;
+
             if (!this.isNew){
                 this.officeOCX.ActiveDocument.TrackRevisions = true;
                 this.officeOCX.ActiveDocument.showRevisions = false;
@@ -361,7 +363,7 @@ MWF.xApplication.process.Xform.Office = MWF.APPOffice =  new Class({
             case "menu_showHistory":
                 this.showHistory(button);
                 break;
-            case "menu_redFile":
+            case "menu_redfile":
                 this.redFile();
                 break;
             case "menu_seal":
@@ -377,11 +379,12 @@ MWF.xApplication.process.Xform.Office = MWF.APPOffice =  new Class({
                     var attc = this.form.all[att];
                     if (attc){
                         attc.attachmentController.attachments.each(function(a){
-                            if (this.options.files.indexOf(a.data.extension.toLowerCase())!==-1){
-                                button._loadMenuItem(this.createMenuActionMenuItem(a.data.id, a.data.name, "14.png", "openAttachment:"+a.data.id+":"+att+":"+a.data.name));
+                            if (a.data.control.allowEdit){
+                                if (this.options.files.indexOf(a.data.extension.toLowerCase())!==-1){
+                                    button._loadMenuItem(this.createMenuActionMenuItem(a.data.id, a.data.name, "14.png", "openAttachment:"+a.data.id+":"+att+":"+a.data.name));
+                                }
                             }
                         }.bind(this));
-
                     }
                 }.bind(this));
         }
@@ -398,12 +401,12 @@ MWF.xApplication.process.Xform.Office = MWF.APPOffice =  new Class({
             if (this.form.businessData.workCompleted){
                 MWF.Actions.get("x_processplatform_assemble_surface").getAttachmentWorkcompletedUrl(id, this.form.businessData.workCompleted.id, function(url){
                     this.openedAttachment = {"id": id, "site": site, "name": name};
-                    this.officeOCX.BeginOpenFromURL(url, true, this.readonly);
+                    this.officeOCX.BeginOpenFromURL(url, true, this.readonly || this.json.isAttReadonly );
                 }.bind(this));
             }else{
                 MWF.Actions.get("x_processplatform_assemble_surface").getAttachmentUrl(id, this.form.businessData.work.id, function(url){
                     this.openedAttachment = {"id": id, "site": site, "name": name};
-                    this.officeOCX.BeginOpenFromURL(url, true, this.readonly);
+                    this.officeOCX.BeginOpenFromURL(url, true, this.readonly || this.json.isAttReadonly);
                 }.bind(this));
             }
         }
@@ -566,16 +569,16 @@ MWF.xApplication.process.Xform.Office = MWF.APPOffice =  new Class({
             }
         }
     },
-    openOfficeHistory: function(e, dlg){
+    openOfficeHistory: function(e, dlg, button){
         var fileName = e.target.getParent().get("value");
-        if (this.form.businessData.work){
+        if (!this.form.businessData.workCompleted){
             url = this.form.workAction.action.actions.getAttachmentData.uri;
             url = url.replace("{id}", encodeURIComponent(fileName));
             url = this.form.workAction.action.address+url.replace("{workid}", encodeURIComponent(this.form.businessData.work.id));
         }else{
             url = this.form.workAction.action.actions.getWorkcompletedAttachmentData.uri;
             url = url.replace("{id}", encodeURIComponent(fileName));
-            url = this.form.workAction.action.address+url.replace("{workid}", encodeURIComponent(this.form.businessData.workCompleted.id));
+            url = this.form.workAction.action.address+url.replace("{workCompletedId}", encodeURIComponent(this.form.businessData.workCompleted.id));
         }
         dlg.close();
         this.save();
@@ -819,6 +822,12 @@ MWF.xApplication.process.Xform.Office = MWF.APPOffice =  new Class({
         }
         this.openedAttachment = null
     },
+    getAutoSavedAttachments: function(){
+        this.autoSavedAttachments = [];
+        this.form.businessData.attachmentList.each(function(att){
+            if (att.site===this.json.id+"autosave") this.autoSavedAttachments.push(att);
+        }.bind(this));
+    },
     loadOfficeEditIE: function(file){
         if (!this.officeOCX){
             this.loadOfficeSpacer();
@@ -876,6 +885,14 @@ MWF.xApplication.process.Xform.Office = MWF.APPOffice =  new Class({
             this.doOfficeOCXEvents();
         }
 
+        this.getAutoSavedAttachments();
+        if (this.autoSavedAttachments && this.autoSavedAttachments.length){
+            this.openRecoverAutoSaveDlg();
+        }else{
+            this.openOfficeFile(file);
+        }
+    },
+    openOfficeFile: function(file){
         var url = file || this.getOfficeFileUrl();
         if (url){
             //layout.desktop.tmpOffice = this;
@@ -885,6 +902,195 @@ MWF.xApplication.process.Xform.Office = MWF.APPOffice =  new Class({
             this.officeOCX.CreateNew(this.getProgID());
             this.fireEvent("afterCreate");
         }
+
+        //begin auto save
+        if (this.json.isAutoSave){
+            if (!this.autoSaveTimerID){
+                this.autoSave();
+                this.form.app.addEvent("queryClose", function(){
+                    if (this.autoSaveTimerID) window.clearInterval(this.autoSaveTimerID);
+                }.bind(this));
+            }
+        }
+    },
+
+    clearAutoSaveAttachments: function(){
+        this.form.businessData.attachmentList.each(function(att){
+            if (att.site===this.json.id+"autosave") o2.Actions.get("x_processplatform_assemble_surface").deleteAttachment(att.id, this.form.businessData.work.id);
+        }.bind(this));
+        this.autoSavedAttachments = [];
+    },
+    getRecoverItems: function(recoverItemNode){
+        var css = this.form.css;
+        var _self = this;
+        this.autoSavedAttachments.each(function(att){
+            var node = new Element("div", {"styles": css.officeRecoverItemNode}).inject(recoverItemNode);
+            var actionNode = new Element("div", {"styles": css.officeRecoverItemActionNode}).inject(node);
+            var titleNode = new Element("div", {"styles": css.officeRecoverItemTitleNode, "text": att.name}).inject(node);
+            node.store("att", att);
+
+            actionNode.addEvent("click", function(e){
+                var n = this.getParent();
+                var att = n.retrieve("att");
+                _self.form.workAction.getAttachmentData(att.id, _self.form.businessData.work.id);
+                e.stopPropagation();
+            });
+            node.addEvents({
+                "mouseover": function(){
+                    var isSelected = this.retrieve("isSelected");
+                    if (!isSelected) this.setStyles(css.officeRecoverItemNode_over);
+                },
+                "mouseout": function(){
+                    var isSelected = this.retrieve("isSelected");
+                    if (!isSelected) this.setStyles(css.officeRecoverItemNode)
+                },
+                "click": function(){
+                    var isSelected = this.retrieve("isSelected");
+                    if (isSelected){
+                        this.setStyles(css.officeRecoverItemNode);
+                        this.getFirst().setStyles(css.officeRecoverItemActionNode);
+                        this.store("isSelected", false);
+                    }else{
+                        var items = recoverItemNode.getChildren();
+                        items.each(function(item){
+                            item.setStyles(css.officeRecoverItemNode);
+                            item.getFirst().setStyles(css.officeRecoverItemActionNode);
+                            item.store("isSelected", false);
+                        });
+                        this.setStyles(css.officeRecoverItemNode_current);
+                        this.getFirst().setStyles(css.officeRecoverItemActionNode_current);
+                        this.store("isSelected", true);
+                    }
+                }
+            });
+
+        }.bind(this));
+    },
+    openRecoverAutoSaveDlg: function(){
+        var node = new Element("div", {"styles": {"overflow": "hidden", "padding": "0 30px"}});
+        var html = "<div style=\"line-height: 30px; height: 30px; color: #333333; overflow: hidden\">请选择要恢复的正文版本：</div>";
+        html += "<div style=\"max-height: 300px; margin-bottom:10px; margin-top:10px; overflow-y:auto;\"></div>";
+        node.set("html", html);
+        var recoverItemNode = node.getLast();
+        this.getRecoverItems(recoverItemNode);
+        node.inject(this.form.app.content);
+
+        var _self = this;
+        var dlg = o2.DL.open({
+            "title": "恢复正文",
+            //"style": "work",
+            "isResize": false,
+            "content": node,
+            "width": 600,
+            "onPostClose": function(){
+                _self.clearAutoSaveAttachments();
+            },
+            "buttonList": [
+                {
+                    "text": MWF.xApplication.process.Xform.LP.recover,
+                    "action": function(d, e){
+                        this.doRecoverFile(node, e, dlg);
+                    }.bind(this)
+                },
+                {
+                    "text": MWF.xApplication.process.Xform.LP.notRecover,
+                    "action": function(d, e){
+                        this.doNotRecoverFile(node, e, dlg);
+                    }.bind(this)
+                }
+            ]
+        });
+    },
+    doNotRecoverFile: function(node, e, dlg){
+        var _self = this;
+        this.form.app.confirm("infor", e, this.form.app.lp.notRecoverFileConfirmTitle, this.form.app.lp.notRecoverFileConfirmContent, 450, 120, function(){
+            this.close();
+            dlg.close();
+            _self.openOfficeFile();
+        }, function(){
+            this.close();
+        });
+    },
+
+    doRecoverFile: function(node, e, dlg){
+        var recoverItemNode = node.getLast();
+        var items = recoverItemNode.getChildren();
+        var _self = this;
+        for (var i=0; i<items.length; i++){
+            if (items[i].retrieve("isSelected")){
+                var text = this.form.app.lp.recoverFileConfirmContent;
+                var att = items[i].retrieve("att");
+                text = text.replace("{att}", att.name);
+                this.form.app.confirm("infor", e, this.form.app.lp.recoverFileConfirmTitle, text, 450, 120, function(){
+                    this.close();
+                    dlg.close();
+                    _self.form.workAction.getAttachmentUrl(att.id, _self.form.businessData.work.id, function(file){
+                        _self.openOfficeFile(file);
+                        dlg.close();
+                    });
+                }, function(){
+                    this.close();
+                });
+                break;
+            }
+        }
+    },
+    checkAutoSaveNumber: function(callback){
+        debugger;
+        if (!this.autoSavedAttachments) this.autoSavedAttachments = [];
+        if (this.autoSavedAttachments.length >= this.json.autoSaveNumber.toInt()){
+            //delete first att
+            var att = this.autoSavedAttachments.shift();
+            o2.Actions.get("x_processplatform_assemble_surface").deleteAttachment(att.id, this.form.businessData.work.id, function(){
+                this.checkAutoSaveNumber(callback);
+            }.bind(this));
+        }else{
+            if (callback) callback();
+        }
+    },
+    getAutoSaveFileName: function(){
+        var ename = "docx";
+        switch (this.json.officeType){
+            case "word":
+                ename = "docx";
+                break;
+            case "excel":
+                ename = "xlsx";
+                break;
+            case "ppt":
+                ename = "pptx";
+        }
+        var d = Date.parse(new Date());
+        var dText = d.format("%Y-%m-%d %H:%M:%S");
+        return MWF.xApplication.process.Xform.LP.autosave+"("+dText+")."+ename;
+    },
+    autoSave: function(){
+        var interval = (this.json.autoSaveTime) ? this.json.autoSaveTime.toInt()*60*1000 : (5*60*1000);
+        this.autoSaveTimerID = window.setInterval(function(){
+            if (!this.openedAttachment){
+                this.checkAutoSaveNumber(function(){
+                    try{
+                        var fileName = this.getAutoSaveFileName();
+                        this.officeForm.getElement("input").set("value", this.json.id+"autosave");
+                        url = this.form.workAction.action.actions.uploadAttachment.uri;
+                        url = this.form.workAction.action.address+url.replace("{id}", this.form.businessData.work.id);
+                        this.officeOCX.SaveToURL(url, "file", "", fileName, this.getFormId());
+
+                        this.form.workAction.listAttachments(this.form.businessData.work.id, function(json){
+                            this.form.businessData.attachmentList = json.data;
+                            for (var i=0; i<json.data.length; i++){
+                                var att = json.data[i];
+                                if (att.name===fileName){
+                                    this.autoSavedAttachments.push(att);
+                                    break;
+                                }
+                            }
+                        }.bind(this), null, false);
+                    }catch(e){}
+                }.bind(this));
+            }
+        }.bind(this), interval);
+
     },
     doOfficeOCXEvents: function(){
         var id = this.getOfficeObjectId();
@@ -1012,6 +1218,15 @@ MWF.xApplication.process.Xform.Office = MWF.APPOffice =  new Class({
                     if (history){
                         if (this.json.isHistory) this.saveHistory();
                     }
+
+                    this.clearAutoSaveAttachments();
+
+                    // if (this.autoSavedAttachments && this.autoSavedAttachments.length){
+                    //     this.autoSavedAttachments.each(function(att){
+                    //         o2.Actions.get("x_processplatform_assemble_surface").deleteAttachment(att.id, this.form.businessData.work.id);
+                    //     }.bind(this));
+                    //     this.autoSavedAttachments = [];
+                    // }
                     //this.saveHTML();
                     this.officeForm.getElement("input").set("value", this.json.id);
                     var url = "";
@@ -1064,7 +1279,7 @@ MWF.xApplication.process.Xform.Office = MWF.APPOffice =  new Class({
     },
     getHTMLFileName: function(){
         //var id = (this.form.businessData.work) ? this.form.businessData.work.id : this.form.businessData.workCompleted.id;
-        var id = (this.form.businessData.work) ? this.form.businessData.work.id : this.form.businessData.workCompleted.workId;
+        var id = (!this.form.businessData.workCompleted) ? this.form.businessData.work.id : this.form.businessData.workCompleted.workId;
         return id+this.json.id+".mht";
     },
     saveHTML: function(){
@@ -1108,7 +1323,7 @@ MWF.xApplication.process.Xform.Office = MWF.APPOffice =  new Class({
         if (file){
             //this.file = file;
             var url = "";
-            if (this.form.businessData.work){
+            if (!this.form.businessData.workCompleted){
                 url = this.form.workAction.action.actions.getAttachmentData.uri;
                 url = url.replace("{id}", encodeURIComponent(file.id));
                 return this.form.workAction.action.address+url.replace("{workid}", encodeURIComponent(this.form.businessData.work.id));
@@ -1196,21 +1411,23 @@ MWF.xApplication.process.Xform.Office = MWF.APPOffice =  new Class({
 
 
         }else{
-            this.node.setStyles({
-                "overflow": "hidden",
-                "background-color": "#f3f3f3",
-                "min-height": "24px",
-                "padding": "18px"
-            });
+            if (this.json.isShowSummary!==false){
+                this.node.setStyles({
+                    "overflow": "hidden",
+                    "background-color": "#f3f3f3",
+                    "min-height": "24px",
+                    "padding": "18px"
+                });
 
-            var str = this.getData();
-            if (layout.mobile || COMMON.Browser.Platform.isMobile){
-                if (str.length>300) str = str.substr(0,300)+"……";
+                var str = this.getData();
+                if (layout.mobile || COMMON.Browser.Platform.isMobile){
+                    if (str.length>300) str = str.substr(0,300)+"……";
+                }
+
+                var text = new Element("div", {
+                    "text": str
+                }).inject(this.node);
             }
-
-            var text = new Element("div", {
-                "text": str
-            }).inject(this.node);
         }
         var text = MWF.xApplication.process.Xform.LP.openOfficeInfor;
         text = text.replace("{type}", this.json.officeType);

@@ -410,16 +410,16 @@ MWF.xScript.PageEnvironment = function(ev){
             }
             switch (getUnitMethod){
                 case "current":
-                    var data = {"identity":(typeOf(name)==="object") ? (name.distinguishedName || name.id || name.unique || name.name) : name,"level":flag};
-                    orgActions.getUnitWithIdentityAndLevel(data, function(json){ v = json.data; }, null, false);
+                    var data = {"identityList":getNameFlag(name)};
+                    orgActions.listUnitWithIdentity(data, function(json){ v = json.data; v=(v&&v.length===1) ? v[0] : v }, null, false);
                     break;
                 case "type":
                     var data = {"identity":(typeOf(name)==="object") ? (name.distinguishedName || name.id || name.unique || name.name) : name,"type":flag};
                     orgActions.getUnitWithIdentityAndType(data, function(json){ v = json.data; }, null, false);
                     break;
                 case "level":
-                    var data = {"identityList":getNameFlag(name)};
-                    orgActions.listUnitWithIdentity(data, function(json){ v = json.data; }, null, false);
+                    var data = {"identity":(typeOf(name)==="object") ? (name.distinguishedName || name.id || name.unique || name.name) : name,"level":flag};
+                    orgActions.getUnitWithIdentityAndLevel(data, function(json){ v = json.data; }, null, false);
                     break;
             }
             return v;
@@ -1004,5 +1004,24 @@ MWF.xScript.PageEnvironment = function(ev){
     this.status = ev.status;
     this.session = layout.desktop.session;
     this.Actions = o2.Actions;
+
+    this.query = function(option){
+        // options = {
+        //      "name": "statementName",
+        //      "data": "json data",
+        //      "firstResult": 1,
+        //      "maxResults": 100,
+        //      "success": function(){},
+        //      "error": function(){},
+        //      "async": true or false, default is true
+        // }
+        if (option){
+            var json = (option.data) || {};
+            if (option.firstResult) json.firstResult = option.firstResult.toInt();
+            if (option.maxResults) json.maxResults = option.maxResults.toInt();
+            o2.Actions.get("x_query_assemble_surface").executeStatement(option.name, json, success, error, options.async);
+        }
+    };
+    this.Table = MWF.xScript.createTable();
 };
 

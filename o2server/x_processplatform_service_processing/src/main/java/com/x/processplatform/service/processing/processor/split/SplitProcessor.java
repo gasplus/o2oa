@@ -6,7 +6,6 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 import com.x.base.core.container.EntityManagerContainer;
-import com.x.base.core.entity.JpaObject;
 import com.x.base.core.project.logger.Logger;
 import com.x.base.core.project.logger.LoggerFactory;
 import com.x.base.core.project.tools.ListTools;
@@ -56,22 +55,19 @@ public class SplitProcessor extends AbstractSplitProcessor {
 				.filter(o -> StringUtils.equals(aeiObjects.getWork().getActivityToken(), o.getFromActivityToken()))
 				.findFirst().orElse(null);
 		mainWorkLog.setSplitting(true);
-		mainWorkLog.setSplitToken(StringTools.uniqueToken());
+		mainWorkLog.setSplitToken(aeiObjects.getWork().getSplitToken());
 		mainWorkLog.getSplitTokenList().add(aeiObjects.getWork().getSplitToken());
 		mainWorkLog.setSplitValue(splitValues.get(0));
 		aeiObjects.getUpdateWorkLogs().add(mainWorkLog);
 		/* 产生后续的拆分文档并标记拆分值 */
 		for (int i = 1; i < splitValues.size(); i++) {
-			Work splitWork = new Work();
+			Work splitWork = new Work(aeiObjects.getWork());
 			/* 将文档存放在一起 */
-			String activityToken = StringTools.uniqueToken();
-			aeiObjects.getWork().copyTo(splitWork, JpaObject.id_FIELDNAME);
-			splitWork.setActivityToken(activityToken);
 			splitWork.setSplitValue(splitValues.get(i));
 			aeiObjects.getCreateWorks().add(splitWork);
-			WorkLog splitWorkLog = new WorkLog();
-			mainWorkLog.copyTo(splitWorkLog, JpaObject.id_FIELDNAME);
-			splitWorkLog.setFromActivityToken(activityToken);
+			WorkLog splitWorkLog = new WorkLog(mainWorkLog);
+			splitWorkLog.setSplitWork(aeiObjects.getWork().getId());
+			splitWorkLog.setWork(splitWork.getId());
 			splitWorkLog.setSplitValue(splitValues.get(i));
 			aeiObjects.getCreateWorkLogs().add(splitWorkLog);
 			results.add(splitWork);

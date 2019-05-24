@@ -8,6 +8,8 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
 import org.apache.openjpa.persistence.jdbc.Index;
@@ -111,7 +113,7 @@ public class DocumentViewRecord extends SliceJpaObject {
 
 	public static final String viewerUnitName_FIELDNAME = "viewerUnitName";
 	@FieldDescribe("访问者所属组织名称")
-	@Column(length = JpaObject.length_255B, name = ColumnNamePrefix + viewerTopUnitName_FIELDNAME)
+	@Column(length = JpaObject.length_255B, name = ColumnNamePrefix + viewerUnitName_FIELDNAME)
 	@CheckPersist(allowEmpty = true)
 	private String viewerUnitName;
 
@@ -129,6 +131,7 @@ public class DocumentViewRecord extends SliceJpaObject {
 
 	public static final String lastViewTime_FIELDNAME = "lastViewTime";
 	@FieldDescribe("最后访问时间.")
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column( name = ColumnNamePrefix + lastViewTime_FIELDNAME)
 	@Index(name = TABLE + IndexNameMiddle + lastViewTime_FIELDNAME)
 	private Date lastViewTime;

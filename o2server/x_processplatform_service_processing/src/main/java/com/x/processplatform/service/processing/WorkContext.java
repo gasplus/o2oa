@@ -1,12 +1,14 @@
 package com.x.processplatform.service.processing;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 
 import com.google.gson.Gson;
 import com.x.base.core.entity.annotation.CheckPersistType;
@@ -32,6 +34,8 @@ public class WorkContext {
 	private Gson gson = XGsonBuilder.instance();
 	private ProcessingAttributes processingAttributes;
 	private AeiObjects aeiObjects = null;
+	private Task task;
+	private TaskCompleted taskCompleted;
 
 	public WorkContext(AeiObjects aeiObjects) throws Exception {
 		this.aeiObjects = aeiObjects;
@@ -41,11 +45,20 @@ public class WorkContext {
 		this.processingAttributes = aeiObjects.getProcessingAttributes();
 	}
 
-	WorkContext(Business business, Work work, Activity activity) throws Exception {
+	WorkContext(Business business, Work work, Activity activity, Task task) throws Exception {
 		this.business = business;
 		this.work = work;
 		this.activity = activity;
 		this.gson = XGsonBuilder.instance();
+		this.task = task;
+	}
+
+	WorkContext(Business business, Work work, Activity activity, TaskCompleted taskCompleted) throws Exception {
+		this.business = business;
+		this.work = work;
+		this.activity = activity;
+		this.gson = XGsonBuilder.instance();
+		this.taskCompleted = taskCompleted;
 	}
 
 	public String getWork() throws Exception {
@@ -54,58 +67,6 @@ public class WorkContext {
 
 	public String getActivity() throws Exception {
 		return gson.toJson(this.activity);
-	}
-
-	public String getTaskList() throws Exception {
-		try {
-			List<Task> list = new ArrayList<>();
-			if (null != this.aeiObjects) {
-				list.addAll(aeiObjects.getTasks());
-				list.addAll(aeiObjects.getCreateTasks());
-			}
-			return gson.toJson(list);
-		} catch (Exception e) {
-			throw new Exception("getTaskList error.", e);
-		}
-	}
-
-	public String getTaskCompletedList() throws Exception {
-		try {
-			List<TaskCompleted> list = new ArrayList<>();
-			if (null != this.aeiObjects) {
-				list.addAll(aeiObjects.getTaskCompleteds());
-				list.addAll(aeiObjects.getCreateTaskCompleteds());
-			}
-			return gson.toJson(list);
-		} catch (Exception e) {
-			throw new Exception("getTaskCompletedList error.", e);
-		}
-	}
-
-	public String getReadList() throws Exception {
-		try {
-			List<Read> list = new ArrayList<>();
-			if (null != this.aeiObjects) {
-				list.addAll(aeiObjects.getReads());
-				list.addAll(aeiObjects.getCreateReads());
-			}
-			return gson.toJson(list);
-		} catch (Exception e) {
-			throw new Exception("getReadList error.", e);
-		}
-	}
-
-	public String getReadCompletedList() throws Exception {
-		try {
-			List<ReadCompleted> list = new ArrayList<>();
-			if (null != this.aeiObjects) {
-				list.addAll(aeiObjects.getReadCompleteds());
-				list.addAll(aeiObjects.getCreateReadCompleteds());
-			}
-			return gson.toJson(list);
-		} catch (Exception e) {
-			throw new Exception("getReadCompletedList error.", e);
-		}
 	}
 
 	public String getReviewList() throws Exception {
@@ -122,6 +83,11 @@ public class WorkContext {
 		try {
 			List<String> ids = business.workLog().listWithWork(work.getId());
 			List<WorkLog> list = business.entityManagerContainer().list(WorkLog.class, ids);
+			/* 保持和前台一直顺序 */
+			list = list.stream()
+					.sorted(Comparator.comparing(WorkLog::getFromTime, Comparator.nullsLast(Date::compareTo))
+							.thenComparing(WorkLog::getArrivedTime, Comparator.nullsLast(Date::compareTo)))
+					.collect(Collectors.toList());
 			return gson.toJson(list);
 		} catch (Exception e) {
 			throw new Exception("getWorkLogList error.", e);
@@ -201,7 +167,7 @@ public class WorkContext {
 			List<String> libs = new ArrayList<>();
 			for (Script o : list) {
 				buffer.append(o.getText());
-				buffer.append(SystemUtils.LINE_SEPARATOR);
+				buffer.append(System.lineSeparator());
 				if (StringUtils.isNotEmpty(o.getId())) {
 					libs.add(o.getId());
 				}
@@ -218,6 +184,141 @@ public class WorkContext {
 			return gson.toJson(map);
 		} catch (Exception e) {
 			throw new Exception("getScript error.", e);
+		}
+	}
+
+	public String getJobTaskList() throws Exception {
+		try {
+
+			List<Task> list = new ArrayList<>();
+			if (null != this.aeiObjects) {
+				list.addAll(aeiObjects.getTasks());
+				list.addAll(aeiObjects.getCreateTasks());
+			}
+			return gson.toJson(list);
+		} catch (Exception e) {
+			throw new Exception("getJobTaskList error.", e);
+		}
+	}
+
+	public String getJobTaskCompletedList() throws Exception {
+		try {
+			List<TaskCompleted> list = new ArrayList<>();
+			if (null != this.aeiObjects) {
+				list.addAll(aeiObjects.getTaskCompleteds());
+				list.addAll(aeiObjects.getCreateTaskCompleteds());
+			}
+			return gson.toJson(list);
+		} catch (Exception e) {
+			throw new Exception("getJobTaskCompletedList error.", e);
+		}
+	}
+
+	public String getJobReadList() throws Exception {
+		try {
+			List<Read> list = new ArrayList<>();
+			if (null != this.aeiObjects) {
+				list.addAll(aeiObjects.getReads());
+				list.addAll(aeiObjects.getCreateReads());
+			}
+			return gson.toJson(list);
+		} catch (Exception e) {
+			throw new Exception("getJobReadList error.", e);
+		}
+	}
+
+	public String getJobReadCompletedList() throws Exception {
+		try {
+			List<ReadCompleted> list = new ArrayList<>();
+			if (null != this.aeiObjects) {
+				list.addAll(aeiObjects.getReadCompleteds());
+				list.addAll(aeiObjects.getCreateReadCompleteds());
+			}
+			return gson.toJson(list);
+		} catch (Exception e) {
+			throw new Exception("getJobReadCompletedList error.", e);
+		}
+	}
+
+	public String getTaskList() throws Exception {
+		try {
+			List<Task> list = new ArrayList<>();
+			if (null != this.aeiObjects) {
+				list.addAll(aeiObjects.getTasks());
+				list.addAll(aeiObjects.getCreateTasks());
+			}
+			return gson.toJson(
+					list.stream().filter(o -> StringUtils.equals(o.getWork(), this.aeiObjects.getWork().getId()))
+							.collect(Collectors.toList()));
+		} catch (Exception e) {
+			throw new Exception("getTaskList error.", e);
+		}
+	}
+
+	public String getTaskCompletedList() throws Exception {
+		try {
+			List<TaskCompleted> list = new ArrayList<>();
+			if (null != this.aeiObjects) {
+				list.addAll(aeiObjects.getTaskCompleteds());
+				list.addAll(aeiObjects.getCreateTaskCompleteds());
+			}
+			return gson.toJson(
+					list.stream().filter(o -> StringUtils.equals(o.getWork(), this.aeiObjects.getWork().getId()))
+							.collect(Collectors.toList()));
+		} catch (Exception e) {
+			throw new Exception("getTaskCompletedList error.", e);
+		}
+	}
+
+	public String getTaskOrTaskCompleted() throws Exception {
+		if (null != task) {
+			return gson.toJson(task);
+		}
+		if (null != taskCompleted) {
+			return gson.toJson(taskCompleted);
+		}
+		List<TaskCompleted> list = new ArrayList<>();
+		if (null != this.aeiObjects) {
+			list.addAll(aeiObjects.getTaskCompleteds());
+			list.addAll(aeiObjects.getCreateTaskCompleteds());
+		}
+		TaskCompleted o = list
+				.stream().sorted(Comparator
+						.comparing(TaskCompleted::getCreateTime, Comparator.nullsLast(Date::compareTo)).reversed())
+				.findFirst().orElse(null);
+		if (null != o) {
+			return gson.toJson(o);
+		}
+		return "";
+	}
+
+	public String getReadList() throws Exception {
+		try {
+			List<Read> list = new ArrayList<>();
+			if (null != this.aeiObjects) {
+				list.addAll(aeiObjects.getReads());
+				list.addAll(aeiObjects.getCreateReads());
+			}
+			return gson.toJson(
+					list.stream().filter(o -> StringUtils.equals(o.getWork(), this.aeiObjects.getWork().getId()))
+							.collect(Collectors.toList()));
+		} catch (Exception e) {
+			throw new Exception("getReadList error.", e);
+		}
+	}
+
+	public String getReadCompletedList() throws Exception {
+		try {
+			List<ReadCompleted> list = new ArrayList<>();
+			if (null != this.aeiObjects) {
+				list.addAll(aeiObjects.getReadCompleteds());
+				list.addAll(aeiObjects.getCreateReadCompleteds());
+			}
+			return gson.toJson(
+					list.stream().filter(o -> StringUtils.equals(o.getWork(), this.aeiObjects.getWork().getId()))
+							.collect(Collectors.toList()));
+		} catch (Exception e) {
+			throw new Exception("getReadCompletedList error.", e);
 		}
 	}
 

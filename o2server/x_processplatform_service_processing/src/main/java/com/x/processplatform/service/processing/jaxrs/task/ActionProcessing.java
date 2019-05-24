@@ -13,6 +13,7 @@ import com.x.base.core.entity.annotation.CheckPersistType;
 import com.x.base.core.entity.annotation.CheckRemoveType;
 import com.x.base.core.project.annotation.FieldDescribe;
 import com.x.base.core.project.config.Config;
+import com.x.base.core.project.exception.ExceptionEntityNotExist;
 import com.x.base.core.project.gson.GsonPropertyObject;
 import com.x.base.core.project.http.ActionResult;
 import com.x.base.core.project.http.EffectivePerson;
@@ -52,10 +53,10 @@ class ActionProcessing extends BaseAction {
 			ActionResult<Wo> result = new ActionResult<>();
 			Task task = emc.find(id, Task.class);
 			if (null == task) {
-				throw new ExceptionTaskNotExist(id);
+				throw new ExceptionEntityNotExist(id, Task.class);
 			}
 			Manual manual = null;
-			/** 执行办前脚本 */
+			/* 执行办前脚本 */
 			if (Objects.equals(task.getActivityType(), ActivityType.manual)) {
 				manual = business.element().get(task.getActivity(), Manual.class);
 				if (null != manual) {
@@ -66,10 +67,13 @@ class ActionProcessing extends BaseAction {
 						if (null != work) {
 							WorkDataHelper workDataHelper = new WorkDataHelper(business.entityManagerContainer(), work);
 							data = workDataHelper.get();
+							ScriptHelper sh = ScriptHelperFactory.createWithTask(business, work, data, manual, task);
+							sh.eval(work.getApplication(), manual.getManualBeforeTaskScript(),
+									manual.getManualBeforeTaskScriptText());
+							if (workDataHelper.update(data)) {
+								emc.commit();
+							}
 						}
-						ScriptHelper sh = ScriptHelperFactory.create(business, work, data, manual);
-						sh.eval(work.getApplication(), manual.getManualBeforeTaskScript(),
-								manual.getManualBeforeTaskScriptText());
 					}
 				}
 			}
@@ -87,7 +91,7 @@ class ActionProcessing extends BaseAction {
 			emc.persist(taskCompleted, CheckPersistType.all);
 			emc.remove(task, CheckRemoveType.all);
 			emc.commit();
-			/** 待办执行后脚本 */
+			/* 待办执行后脚本 */
 			if (null != manual) {
 				if (StringUtils.isNotEmpty(manual.getManualAfterTaskScript())
 						|| StringUtils.isNotEmpty(manual.getManualAfterTaskScriptText())) {
@@ -96,10 +100,14 @@ class ActionProcessing extends BaseAction {
 					if (null != work) {
 						WorkDataHelper workDataHelper = new WorkDataHelper(business.entityManagerContainer(), work);
 						data = workDataHelper.get();
+						ScriptHelper sh = ScriptHelperFactory.createWithTaskCompleted(business, work, data, manual,
+								taskCompleted);
+						sh.eval(work.getApplication(), manual.getManualAfterTaskScript(),
+								manual.getManualAfterTaskScriptText());
+						if (workDataHelper.update(data)) {
+							emc.commit();
+						}
 					}
-					ScriptHelper sh = ScriptHelperFactory.create(business, work, data, manual);
-					sh.eval(work.getApplication(), manual.getManualAfterTaskScript(),
-							manual.getManualAfterTaskScriptText());
 				}
 			}
 			MessageFactory.taskCompleted_create(taskCompleted);
@@ -128,6 +136,9 @@ class ActionProcessing extends BaseAction {
 		@FieldDescribe("最后是否触发work的流转,默认流转.")
 		private Boolean finallyProcessingWork;
 
+		@FieldDescribe("路由数据.")
+		private JsonElement routeData;
+
 		public ProcessingType getProcessingType() {
 			return processingType;
 		}
@@ -142,6 +153,14 @@ class ActionProcessing extends BaseAction {
 
 		public void setFinallyProcessingWork(Boolean finallyProcessingWork) {
 			this.finallyProcessingWork = finallyProcessingWork;
+		}
+
+		public JsonElement getRouteData() {
+			return routeData;
+		}
+
+		public void setRouteData(JsonElement routeData) {
+			this.routeData = routeData;
 		}
 
 	}

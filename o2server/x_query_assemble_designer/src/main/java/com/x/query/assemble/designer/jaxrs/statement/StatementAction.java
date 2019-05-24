@@ -34,6 +34,24 @@ public class StatementAction extends StandardJaxrsAction {
 
 	private static Logger logger = LoggerFactory.getLogger(StatementAction.class);
 
+	@JaxrsMethodDescribe(value = "根据query列示statement对象.", action = ActionListWithQuery.class)
+	@GET
+	@Path("list/query/{flag}")
+	@Produces(HttpMediaType.APPLICATION_JSON_UTF_8)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void listWithQuery(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request,
+			@JaxrsParameterDescribe("查询标识") @PathParam("flag") String flag) {
+		ActionResult<List<ActionListWithQuery.Wo>> result = new ActionResult<>();
+		EffectivePerson effectivePerson = this.effectivePerson(request);
+		try {
+			result = new ActionListWithQuery().execute(effectivePerson, flag);
+		} catch (Exception e) {
+			logger.error(e, effectivePerson, request, null);
+			result.error(e);
+		}
+		asyncResponse.resume(ResponseFactory.getDefaultActionResultResponse(result));
+	}
+
 	@JaxrsMethodDescribe(value = "根据标识获取语句.", action = ActionGet.class)
 	@GET
 	@Path("{flag}")
@@ -45,44 +63,6 @@ public class StatementAction extends StandardJaxrsAction {
 		EffectivePerson effectivePerson = this.effectivePerson(request);
 		try {
 			result = new ActionGet().execute(effectivePerson, flag);
-		} catch (Exception e) {
-			logger.error(e, effectivePerson, request, null);
-			result.error(e);
-		}
-		asyncResponse.resume(ResponseFactory.getDefaultActionResultResponse(result));
-	}
-
-	@JaxrsMethodDescribe(value = "列示语句对象,下一页.", action = ActionListNext.class)
-	@GET
-	@Path("list/{id}/next/{count}")
-	@Produces(HttpMediaType.APPLICATION_JSON_UTF_8)
-	@Consumes(MediaType.APPLICATION_JSON)
-	public void listNext(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request,
-			@JaxrsParameterDescribe("标识") @PathParam("id") String id,
-			@JaxrsParameterDescribe("数量") @PathParam("count") Integer count) {
-		ActionResult<List<ActionListNext.Wo>> result = new ActionResult<>();
-		EffectivePerson effectivePerson = this.effectivePerson(request);
-		try {
-			result = new ActionListNext().execute(effectivePerson, id, count);
-		} catch (Exception e) {
-			logger.error(e, effectivePerson, request, null);
-			result.error(e);
-		}
-		asyncResponse.resume(ResponseFactory.getDefaultActionResultResponse(result));
-	}
-
-	@JaxrsMethodDescribe(value = "列示语句对象,上一页.", action = ActionListPrev.class)
-	@GET
-	@Path("list/{id}/prev/{count}")
-	@Produces(HttpMediaType.APPLICATION_JSON_UTF_8)
-	@Consumes(MediaType.APPLICATION_JSON)
-	public void listPrev(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request,
-			@JaxrsParameterDescribe("标识") @PathParam("id") String id,
-			@JaxrsParameterDescribe("数量") @PathParam("count") Integer count) {
-		ActionResult<List<ActionListPrev.Wo>> result = new ActionResult<>();
-		EffectivePerson effectivePerson = this.effectivePerson(request);
-		try {
-			result = new ActionListPrev().execute(effectivePerson, id, count);
 		} catch (Exception e) {
 			logger.error(e, effectivePerson, request, null);
 			result.error(e);

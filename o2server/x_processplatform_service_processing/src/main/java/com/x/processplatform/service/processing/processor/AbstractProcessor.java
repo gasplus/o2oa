@@ -1,6 +1,5 @@
 package com.x.processplatform.service.processing.processor;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -12,9 +11,8 @@ import org.apache.commons.lang3.StringUtils;
 import com.x.base.core.container.EntityManagerContainer;
 import com.x.base.core.project.logger.Logger;
 import com.x.base.core.project.logger.LoggerFactory;
+import com.x.base.core.project.scripting.ScriptingEngine;
 import com.x.base.core.project.tools.ListTools;
-import com.x.collaboration.core.message.Collaboration;
-import com.x.collaboration.core.message.notification.ReadMessage;
 import com.x.processplatform.core.entity.content.Read;
 import com.x.processplatform.core.entity.content.Review;
 import com.x.processplatform.core.entity.content.Work;
@@ -44,7 +42,7 @@ public abstract class AbstractProcessor extends AbstractBaseProcessor {
 
 	public String arrive(String workId, ProcessingConfigurator processingConfigurator,
 			ProcessingAttributes processingAttributes) {
-		/** 返回值,如果返回值不为空,将继续循环 */
+		/* 返回值,如果返回值不为空,将继续循环 */
 		try {
 			Work work = this.entityManagerContainer().find(workId, Work.class);
 			if (null == work) {
@@ -102,10 +100,10 @@ public abstract class AbstractProcessor extends AbstractBaseProcessor {
 			aeiObjects.commit();
 			this.arriveCommitted(aeiObjects);
 			/* 待阅需要在数据提交后再发出提醒 */
-			for (Read read : aeiObjects.getCreateReads()) {
-				ReadMessage message = new ReadMessage(read.getPerson(), read.getWork(), read.getId());
-				Collaboration.send(message);
-			}
+//			for (Read read : aeiObjects.getCreateReads()) {
+//				ReadMessage message = new ReadMessage(read.getPerson(), read.getWork(), read.getId());
+//				Collaboration.send(message);
+//			}
 			/* 运行AfterArriveScript时间 */
 			this.callAfterArriveScript(aeiObjects);
 			return work.getId();
@@ -307,7 +305,7 @@ public abstract class AbstractProcessor extends AbstractBaseProcessor {
 		if (aeiObjects.getActivityProcessingConfigurator().getCallBeforeInquireScript()) {
 			if (this.hasBeforeInquireScript(aeiObjects.getActivity())) {
 				ScriptHelper scriptHelper = ScriptHelperFactory.create(aeiObjects,
-						new BindingPair(Binding_name_routes, aeiObjects.getRoutes()));
+						new BindingPair(ScriptingEngine.BINDINGNAME_ROUTES, aeiObjects.getRoutes()));
 				scriptHelper.eval(aeiObjects.getWork().getApplication(),
 						Objects.toString(PropertyUtils.getProperty(aeiObjects.getActivity(), BIS)),
 						Objects.toString(PropertyUtils.getProperty(aeiObjects.getActivity(), BIST)));
@@ -319,7 +317,7 @@ public abstract class AbstractProcessor extends AbstractBaseProcessor {
 		if (aeiObjects.getActivityProcessingConfigurator().getCallAfterInquireScript()) {
 			if (this.hasAfterInquireScript(aeiObjects.getActivity())) {
 				ScriptHelper scriptHelper = ScriptHelperFactory.create(aeiObjects,
-						new BindingPair(Binding_name_routes, aeiObjects.getSelectRoutes()));
+						new BindingPair(ScriptingEngine.BINDINGNAME_ROUTES, aeiObjects.getSelectRoutes()));
 				scriptHelper.eval(aeiObjects.getWork().getApplication(),
 						Objects.toString(PropertyUtils.getProperty(aeiObjects.getActivity(), AIS)),
 						Objects.toString(PropertyUtils.getProperty(aeiObjects.getActivity(), AIST)));

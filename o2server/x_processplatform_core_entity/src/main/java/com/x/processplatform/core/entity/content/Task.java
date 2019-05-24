@@ -27,7 +27,6 @@ import org.apache.openjpa.persistence.jdbc.ContainerTable;
 import org.apache.openjpa.persistence.jdbc.ElementColumn;
 import org.apache.openjpa.persistence.jdbc.Index;
 
-import com.x.base.core.entity.AbstractPersistenceProperties;
 import com.x.base.core.entity.JpaObject;
 import com.x.base.core.entity.SliceJpaObject;
 import com.x.base.core.entity.annotation.CheckPersist;
@@ -103,8 +102,8 @@ public class Task extends SliceJpaObject {
 	public Task() {
 	}
 
-	public Task(Work work, String identity, String person, String unit, Date startTime, Date expireTime,
-			List<Route> routes, Boolean allowRapid) {
+	public Task(Work work, String identity, String person, String unit, String trustIdentity, Date startTime,
+			Date expireTime, List<Route> routes, Boolean allowRapid) {
 		this.job = work.getJob();
 		this.title = work.getTitle();
 		this.startTime = startTime;
@@ -119,6 +118,7 @@ public class Task extends SliceJpaObject {
 		this.person = person;
 		this.identity = identity;
 		this.unit = unit;
+		this.trustIdentity = trustIdentity;
 		this.activity = work.getActivity();
 		this.activityName = work.getActivityName();
 		this.activityAlias = work.getActivityAlias();
@@ -135,6 +135,7 @@ public class Task extends SliceJpaObject {
 						this.routeList.add(o.getId());
 						this.routeNameList.add(o.getName());
 						this.routeOpinionList.add(StringUtils.trimToEmpty(o.getOpinion()));
+						this.routeDecisionOpinionList.add(StringUtils.trimToEmpty(o.getDecisionOpinion()));
 					});
 		}
 		this.routeName = "";
@@ -251,6 +252,13 @@ public class Task extends SliceJpaObject {
 	@CheckPersist(allowEmpty = false)
 	private String unit;
 
+	public static final String trustIdentity_FIELDNAME = "trustIdentity";
+	@FieldDescribe("委托人Identity")
+	@Column(length = length_255B, name = ColumnNamePrefix + trustIdentity_FIELDNAME)
+	@Index(name = TABLE + IndexNameMiddle + trustIdentity_FIELDNAME)
+	@CheckPersist(allowEmpty = true)
+	private String trustIdentity;
+
 	public static final String activity_FIELDNAME = "activity";
 	@FieldDescribe("活动ID.")
 	@Column(length = JpaObject.length_id, name = ColumnNamePrefix + activity_FIELDNAME)
@@ -352,7 +360,7 @@ public class Task extends SliceJpaObject {
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + routeList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + routeList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = JpaObject.length_id, name = ColumnNamePrefix + routeList_FIELDNAME)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@CheckPersist(allowEmpty = true)
 	private List<String> routeList = new ArrayList<String>();
 
@@ -362,7 +370,7 @@ public class Task extends SliceJpaObject {
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + routeNameList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + routeNameList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = length_255B, name = ColumnNamePrefix + routeNameList_FIELDNAME)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@CheckPersist(allowEmpty = true)
 	private List<String> routeNameList = new ArrayList<String>();
 
@@ -373,9 +381,20 @@ public class Task extends SliceJpaObject {
 			+ routeOpinionList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle + routeOpinionList_FIELDNAME
 					+ JoinIndexNameSuffix))
 	@ElementColumn(length = length_255B, name = ColumnNamePrefix + routeOpinionList_FIELDNAME)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@CheckPersist(allowEmpty = true)
 	private List<String> routeOpinionList = new ArrayList<String>();
+
+	public static final String routeDecisionOpinionList_FIELDNAME = "routeDecisionOpinionList";
+	@FieldDescribe("决策性意见列表,使用#分割.")
+	@PersistentCollection(fetch = FetchType.EAGER)
+	@ContainerTable(name = TABLE + ContainerTableNameMiddle
+			+ routeDecisionOpinionList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle
+					+ routeDecisionOpinionList_FIELDNAME + JoinIndexNameSuffix))
+	@ElementColumn(length = length_255B, name = ColumnNamePrefix + routeDecisionOpinionList_FIELDNAME)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
+	@CheckPersist(allowEmpty = true)
+	private List<String> routeDecisionOpinionList = new ArrayList<String>();
 
 	public static final String routeName_FIELDNAME = "routeName";
 	@FieldDescribe("选择的路由名称.")
@@ -421,6 +440,12 @@ public class Task extends SliceJpaObject {
 	@Column(length = length_255B, name = ColumnNamePrefix + mediaOpinion_FIELDNAME)
 	@CheckPersist(allowEmpty = true)
 	private String mediaOpinion;
+
+	public static final String first_FIELDNAME = "first";
+	@FieldDescribe("是否是第一条待办.")
+	@CheckPersist(allowEmpty = true)
+	@Column(name = ColumnNamePrefix + first_FIELDNAME)
+	private Boolean first;
 
 	public String getProcess() {
 		return process;
@@ -724,6 +749,30 @@ public class Task extends SliceJpaObject {
 
 	public void setMediaOpinion(String mediaOpinion) {
 		this.mediaOpinion = mediaOpinion;
+	}
+
+	public List<String> getRouteDecisionOpinionList() {
+		return routeDecisionOpinionList;
+	}
+
+	public void setRouteDecisionOpinionList(List<String> routeDecisionOpinionList) {
+		this.routeDecisionOpinionList = routeDecisionOpinionList;
+	}
+
+	public String getTrustIdentity() {
+		return trustIdentity;
+	}
+
+	public void setTrustIdentity(String trustIdentity) {
+		this.trustIdentity = trustIdentity;
+	}
+
+	public Boolean getFirst() {
+		return first;
+	}
+
+	public void setFirst(Boolean first) {
+		this.first = first;
 	}
 
 }

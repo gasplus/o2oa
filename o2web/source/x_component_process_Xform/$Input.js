@@ -156,7 +156,7 @@ MWF.xApplication.process.Xform.$Input = MWF.APP$Input =  new Class({
     _setValue: function(value){
         this._setBusinessData(value);
         if (this.node.getFirst()) this.node.getFirst().set("value", value || "");
-        if (this.readonly) this.node.set("text", value);
+        if (this.readonly || this.json.isReadonly) this.node.set("text", value);
     },
 	_loadValue: function(){
         this._setValue(this.getValue());
@@ -193,7 +193,11 @@ MWF.xApplication.process.Xform.$Input = MWF.APP$Input =  new Class({
 		return this.getInputData();
 	},
     getInputData: function(){
-        return this.node.getFirst().get("value");
+        if (this.node.getFirst()){
+            return this.node.getFirst().get("value");
+        }else{
+            return this._getBusinessData();
+        }
     },
     resetData: function(){
         this.setData(this.getValue());
@@ -259,6 +263,7 @@ MWF.xApplication.process.Xform.$Input = MWF.APP$Input =  new Class({
         }
     },
     showNotValidationMode: function(node){
+        debugger;
         var p = node.getParent("div");
         if (p){
             var mwftype = p.get("MWFtype") || p.get("mwftype");
@@ -267,7 +272,7 @@ MWF.xApplication.process.Xform.$Input = MWF.APP$Input =  new Class({
                     var contentAreaNode = p.getParent("div").getParent("div");
                     var tabAreaNode = contentAreaNode.getPrevious("div");
                     var idx = contentAreaNode.getChildren().indexOf(p.getParent("div"));
-                    var tabNode = tabAreaNode.getChildren()[idx];
+                    var tabNode = tabAreaNode.getLast().getFirst().getChildren()[idx];
                     tabNode.click();
                     p = tabAreaNode.getParent("div");
                 }

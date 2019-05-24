@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.x.base.core.container.EntityManagerContainer;
@@ -190,8 +192,13 @@ public class AeiObjects extends GsonPropertyObject {
 
 	public List<WorkLog> getWorkLogs() throws Exception {
 		if (null == this.workLogs) {
-			this.workLogs = this.business.entityManagerContainer().listEqual(WorkLog.class, WorkLog.job_FIELDNAME,
+			List<WorkLog> os = this.business.entityManagerContainer().listEqual(WorkLog.class, WorkLog.job_FIELDNAME,
 					this.work.getJob());
+			/* 保持和前端得到的相同排序 */
+			this.workLogs = os.stream()
+					.sorted(Comparator.comparing(WorkLog::getFromTime, Comparator.nullsLast(Date::compareTo))
+							.thenComparing(WorkLog::getArrivedTime, Comparator.nullsLast(Date::compareTo)))
+					.collect(Collectors.toList());
 		}
 		return this.workLogs;
 	}
@@ -451,7 +458,8 @@ public class AeiObjects extends GsonPropertyObject {
 		this.commitReview();
 		this.commitHint();
 		this.commitAttachment();
-		this.getWorkDataHelper().update(this.getData());
+		// this.getWorkDataHelper().update(this.getData());
+		this.commitData();
 		this.entityManagerContainer().commit();
 	}
 
@@ -548,6 +556,14 @@ public class AeiObjects extends GsonPropertyObject {
 					MessageFactory.task_create(o);
 					/* 创建待办的参阅 */
 					this.createReview(new Review(this.getWork(), o.getPerson()));
+					/* 创建授权的review */
+					if (StringUtils.isNotEmpty(o.getTrustIdentity())) {
+						String trustPerson = this.business().organization().person()
+								.getWithIdentity(o.getTrustIdentity());
+						if (StringUtils.isNotEmpty(trustPerson)) {
+							this.createReview(new Review(this.getWork(), trustPerson));
+						}
+					}
 				} catch (Exception e) {
 					logger.error(e);
 				}
@@ -792,6 +808,18 @@ public class AeiObjects extends GsonPropertyObject {
 				}
 			});
 		}
+	}
+
+	private void commitData() throws Exception {
+		List<Attachment> os = ListUtils.subtract(this.getAttachments(), this.getDeleteAttachments());
+		os = ListUtils.sum(os, this.getCreateAttachments());
+		Data data = this.getData().removeWork().removeAttachmentList().setAttachmentList(os);
+		if (ListTools.isNotEmpty(this.createWorkCompleteds)) {
+			data.setWork(this.createWorkCompleteds.get(0));
+		} else {
+			data.setWork(this.work);
+		}
+		this.getWorkDataHelper().update(data);
 	}
 
 	public List<Work> getUpdateWorks() {

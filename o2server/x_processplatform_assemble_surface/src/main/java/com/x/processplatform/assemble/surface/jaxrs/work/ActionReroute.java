@@ -1,6 +1,5 @@
 package com.x.processplatform.assemble.surface.jaxrs.work;
 
-import java.net.URLEncoder;
 import java.util.List;
 import java.util.Objects;
 
@@ -9,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.x.base.core.container.EntityManagerContainer;
 import com.x.base.core.container.factory.EntityManagerContainerFactory;
+import com.x.base.core.project.Applications;
 import com.x.base.core.project.x_processplatform_service_processing;
 import com.x.base.core.project.gson.GsonPropertyObject;
 import com.x.base.core.project.http.ActionResult;
@@ -55,8 +55,7 @@ class ActionReroute extends BaseAction {
 				throw new ExceptionProcessNotMatch();
 			}
 			ThisApplication.context().applications().putQuery(x_processplatform_service_processing.class,
-					"work/" + URLEncoder.encode(work.getId(), "UTF-8") + "/reroute/activity/"
-							+ URLEncoder.encode(destinationActivity.getId(), "UTF-8"),
+					Applications.joinQueryUri("work", work.getId(), "reroute", "activity", destinationActivity.getId()),
 					null);
 			Wo wo = new Wo();
 			wo.setId(work.getId());
@@ -212,7 +211,7 @@ class ActionReroute extends BaseAction {
 		if ((null != task) || (null != read) || (taskCompletedCount > 0) || (readCompletedCount > 0)
 				|| (reviewCount > 0)) {
 			control.setAllowVisit(true);
-		} else if (effectivePerson.isUser(work.getCreatorPerson())) {
+		} else if (effectivePerson.isPerson(work.getCreatorPerson())) {
 			control.setAllowVisit(true);
 		} else if (business.canManageApplicationOrProcess(effectivePerson, application, process)) {
 			control.setAllowVisit(true);
@@ -265,10 +264,10 @@ class ActionReroute extends BaseAction {
 			control.setAllowReroute(true);
 		} else if (BooleanUtils.isTrue(activity.getAllowReroute())) {
 			/** 如果活动设置了可以调度 */
-			if ((null != process) && effectivePerson.isUser(process.getControllerList())) {
+			if ((null != process) && effectivePerson.isPerson(process.getControllerList())) {
 				/** 如果是流程的管理员那么可以调度 */
 				control.setAllowReroute(true);
-			} else if ((null != application) && effectivePerson.isUser(application.getControllerList())) {
+			} else if ((null != application) && effectivePerson.isPerson(application.getControllerList())) {
 				/** 如果是应用的管理员那么可以调度 */
 				control.setAllowReroute(true);
 			}

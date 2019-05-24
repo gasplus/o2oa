@@ -50,16 +50,6 @@ public class DocumentFactory<T> extends AbstractFactory {
 		return em.createQuery(cq).getResultList();
 	}
 	
-	//@MethodDescribe("列示指定Id的Document信息列表")
-//	public List<Document> list(List<String> ids) throws Exception {
-//		EntityManager em = this.entityManagerContainer().get( Document.class );
-//		CriteriaBuilder cb = em.getCriteriaBuilder();
-//		CriteriaQuery<Document> cq = cb.createQuery( Document.class );
-//		Root<Document> root = cq.from( Document.class );
-//		Predicate p = root.get( Document_.id).in( ids );
-//		return em.createQuery(cq.where(p)).getResultList();
-//	}
-	
 	//@MethodDescribe("根据应用ID列示所有的Document信息列表")
 	public List<String> listByAppId( String appId, String documentType, Integer maxCount ) throws Exception {
 		EntityManager em = this.entityManagerContainer().get( Document.class );
@@ -75,14 +65,14 @@ public class DocumentFactory<T> extends AbstractFactory {
 	}
 	
 	//@MethodDescribe("根据ID列示指定分类所有Document信息列表")
-	public List<String> listByCategoryId( String categoryId ) throws Exception {
+	public List<String> listByCategoryId( String categoryId, Integer maxCount ) throws Exception {
 		EntityManager em = this.entityManagerContainer().get( Document.class );
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<String> cq = cb.createQuery( String.class );
 		Root<Document> root = cq.from( Document.class );
 		Predicate p = cb.equal(root.get( Document_.categoryId ), categoryId );
 		cq.select(root.get( Document_.id)).where(p);
-		return em.createQuery( cq ).setMaxResults(10000).getResultList();
+		return em.createQuery( cq ).setMaxResults(maxCount).getResultList();
 	}
 	
 	//@MethodDescribe("根据ID列示指定分类所有Document信息数量")
@@ -96,18 +86,15 @@ public class DocumentFactory<T> extends AbstractFactory {
 		return em.createQuery(cq).getSingleResult();
 	}
 	
-//	public Long countWithDocIds(List<String> viewAbleDocIds) throws Exception {
-//		if( viewAbleDocIds == null || viewAbleDocIds.isEmpty() ){
-//			return 0L;
-//		}
-//		EntityManager em = this.entityManagerContainer().get( Document.class );
-//		CriteriaBuilder cb = em.getCriteriaBuilder();
-//		CriteriaQuery<Long> cq = cb.createQuery( Long.class );
-//		Root<Document> root = cq.from( Document.class );
-//		Predicate p = root.get( Document_.id ).in( viewAbleDocIds );
-//		cq.select( cb.count( root ) );
-//		return em.createQuery(cq.where(p)).getSingleResult();
-//	}
+	public Long countByAppId( String appId ) throws Exception {
+		EntityManager em = this.entityManagerContainer().get( Document.class );
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<Document> root = cq.from(Document.class);
+		Predicate p = cb.equal( root.get(Document_.appId), appId );
+		cq.select(cb.count(root)).where(p);
+		return em.createQuery(cq).getSingleResult();
+	}
 	
 	public List<Document> listInReviewDocumentList( Integer maxCount ) throws Exception {
 		EntityManager em = this.entityManagerContainer().get(Document.class);
@@ -143,7 +130,7 @@ public class DocumentFactory<T> extends AbstractFactory {
 	public List<Document> listNextWithCondition( 
 			Integer maxCount, List<String> viewAbleCategoryIds, String title, List<String> publisherList, List<String> createDateList, 
 			List<String> publishDateList,  List<String> statusList, String documentType, List<String> creatorUnitNameList, List<String> importBatchNames, List<String> personNames, List<String> unitNames, List<String> groupNames, 
-			Object sequenceFieldValue, String orderField, String order, Boolean manager
+			Object sequenceFieldValue, String orderField, String order, Boolean manager, Date lastedPublishTime 
 	) throws Exception {
 		if( ListTools.isEmpty( viewAbleCategoryIds ) ){
 			order = "DESC";
@@ -233,7 +220,12 @@ public class DocumentFactory<T> extends AbstractFactory {
 				}
 			}
 		}
+		
 		//组织查询条件
+		//根据最晚发布时间来过滤
+		if( lastedPublishTime != null ) {
+			p = cb.and( p, cb.greaterThan( root.get( Document_.publishTime ) , lastedPublishTime));
+		}
 		if( StringUtils.isNotEmpty( documentType ) && !"全部".equals( documentType ) ){
 			p = cb.and( p, cb.equal( root.get( Document_.documentType ) , documentType));
 		}
@@ -342,7 +334,7 @@ public class DocumentFactory<T> extends AbstractFactory {
 	public Long countWithCondition( 
 			List<String> viewAbleCategoryIds, String title, List<String> publisherList, List<String> createDateList,  List<String> publishDateList,  
 			List<String> statusList, String documentType, List<String>  creatorUnitNameList, List<String> importBatchNames, List<String> personNames, List<String> unitNames,
-			List<String> groupNames, Boolean manager
+			List<String> groupNames, Boolean manager, Date lastedPublishTime
 	) throws Exception {
 		Date startDate = null;
 		Date endDate = null;
@@ -380,6 +372,10 @@ public class DocumentFactory<T> extends AbstractFactory {
 			p = cb.and( p, permission );
 		}
 		
+		//根据最晚发布时间来过滤
+		if( lastedPublishTime != null ) {
+			p = cb.and( p, cb.greaterThan( root.get( Document_.publishTime ) , lastedPublishTime));
+		}
 		//组织查询条件
 		if( StringUtils.isNotEmpty( documentType ) && !"全部".equals( documentType ) ){
 			p = cb.and( p, cb.equal( root.get( Document_.documentType ) , documentType));
@@ -436,7 +432,9 @@ public class DocumentFactory<T> extends AbstractFactory {
 		Root<Document> root = cq.from( Document.class );
 		Predicate p = cb.equal( root.get( Document_.creatorPerson ), name );
 		p = cb.and( p, cb.equal(root.get( Document_.docStatus ), "draft"));
-		p = cb.and( p, root.get( Document_.categoryId ).in( categoryIdList ));
+		if(ListTools.isNotEmpty( categoryIdList )) {
+			p = cb.and( p, root.get( Document_.categoryId ).in( categoryIdList ));
+		}
 		if(StringUtils.isNotEmpty( documentType ) && !"全部".equals(documentType)) {
 			p = cb.and( p, cb.equal( root.get( Document_.documentType ), documentType));
 		}
@@ -630,13 +628,13 @@ public class DocumentFactory<T> extends AbstractFactory {
 		p = CriteriaBuilderTools.predicate_and(cb, p, permissionWhere );	
 		
 		if( maxResultCount == null || maxResultCount == 0 ){
-			maxResultCount = 10000;
+			maxResultCount = 500;
 		}
 		
 		if( publishDateList != null && !publishDateList.isEmpty() ){
-			cq.orderBy( cb.asc( root.get( Document_.publishTime )) );
+			cq.orderBy( cb.desc( root.get( Document_.publishTime )) );
 		}else {
-			cq.orderBy( cb.asc( root.get( Document_.createTime )) );
+			cq.orderBy( cb.desc( root.get( Document_.createTime )) );
 		}
 
 		//LogUtil.INFO( ">>>>SQL:", em.createQuery( cq.where( p ) ).setMaxResults( maxResultCount ).toString() );
@@ -685,7 +683,7 @@ public class DocumentFactory<T> extends AbstractFactory {
 
 	public List<String> listInReviewIds(Integer maxCount) throws Exception {
 		if( maxCount == null ){
-			maxCount = 1000;
+			maxCount = 500;
 		}
 		EntityManager em = this.entityManagerContainer().get( Document.class );
 		CriteriaBuilder cb = em.getCriteriaBuilder();

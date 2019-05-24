@@ -13,6 +13,8 @@ import javax.persistence.InheritanceType;
 import javax.persistence.Lob;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
 import org.apache.openjpa.persistence.PersistentCollection;
@@ -140,6 +142,7 @@ public class QueryView extends SliceJpaObject {
 
 	public static final String lastUpdateTime_FIELDNAME = "lastUpdateTime";
 	@FieldDescribe("应用的最后修改时间。")
+	@Temporal(TemporalType.TIMESTAMP)
 	@CheckPersist(allowEmpty = false)
 	@Column( name = ColumnNamePrefix + lastUpdateTime_FIELDNAME)
 	@Index(name = TABLE + IndexNameMiddle + lastUpdateTime_FIELDNAME)
@@ -209,7 +212,7 @@ public class QueryView extends SliceJpaObject {
 	public static final String availablePersonList_FIELDNAME = "availablePersonList";
 	@FieldDescribe("可使用的人.")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name =ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + availablePersonList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + availablePersonList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix + availablePersonList_FIELDNAME)
@@ -220,7 +223,7 @@ public class QueryView extends SliceJpaObject {
 	public static final String availableIdentityList_FIELDNAME = "availableIdentityList";
 	@FieldDescribe("可使用的身份.")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + availableIdentityList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + availableIdentityList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix + availableIdentityList_FIELDNAME)
@@ -231,7 +234,7 @@ public class QueryView extends SliceJpaObject {
 	public static final String availableUnitList_FIELDNAME = "availableUnitList";
 	@FieldDescribe("允许访问的组织列表.")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name =ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + availableUnitList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + availableUnitList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix + availableUnitList_FIELDNAME)
@@ -242,7 +245,7 @@ public class QueryView extends SliceJpaObject {
 	public static final String controllerList_FIELDNAME = "controllerList";
 	@FieldDescribe("栏目管理者。")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name =ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + controllerList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + controllerList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix + controllerList_FIELDNAME)

@@ -1,5 +1,7 @@
 package com.x.processplatform.service.processing.jaxrs.work;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -113,7 +115,7 @@ public class WorkAction extends StandardJaxrsAction {
 		ActionResult<ActionReroute.Wo> result = new ActionResult<>();
 		EffectivePerson effectivePerson = this.effectivePerson(request);
 		try {
-			result = new ActionReroute().execute(effectivePerson, id, activityId,jsonElement);
+			result = new ActionReroute().execute(effectivePerson, id, activityId, jsonElement);
 		} catch (Exception e) {
 			logger.error(e, effectivePerson, request, null);
 			result.error(e);
@@ -121,18 +123,35 @@ public class WorkAction extends StandardJaxrsAction {
 		asyncResponse.resume(ResponseFactory.getDefaultActionResultResponse(result));
 	}
 
-	@JaxrsMethodDescribe(value = "召回，文件往回撤一步.", action = ActionRetract.class)
+	@JaxrsMethodDescribe(value = "指定文件增加一个副本.", action = ActionAddSplit.class)
 	@PUT
-	@Path("{id}/retract/worklog/{workLogId}")
+	@Path("{id}/add/split")
 	@Produces(HttpMediaType.APPLICATION_JSON_UTF_8)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void retract(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request,
-			@JaxrsParameterDescribe("工作标识") @PathParam("id") String id,
-			@JaxrsParameterDescribe("工作日志标识") @PathParam("workLogId") String workLogId) {
-		ActionResult<ActionRetract.Wo> result = new ActionResult<>();
+	public void addSplit(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request,
+			@JaxrsParameterDescribe("工作标识") @PathParam("id") String id, JsonElement jsonElement) {
+		ActionResult<List<ActionAddSplit.Wo>> result = new ActionResult<>();
 		EffectivePerson effectivePerson = this.effectivePerson(request);
 		try {
-			result = new ActionRetract().execute(effectivePerson, id, workLogId);
+			result = new ActionAddSplit().execute(effectivePerson, id, jsonElement);
+		} catch (Exception e) {
+			logger.error(e, effectivePerson, request, null);
+			result.error(e);
+		}
+		asyncResponse.resume(ResponseFactory.getDefaultActionResultResponse(result));
+	}
+
+	@JaxrsMethodDescribe(value = "回滚指定的工作到指定的workLog.", action = ActionRollback.class)
+	@PUT
+	@Path("{id}/rollback")
+	@Produces(HttpMediaType.APPLICATION_JSON_UTF_8)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void rollback(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request,
+			@JaxrsParameterDescribe("工作标识") @PathParam("id") String id, JsonElement jsonElement) {
+		ActionResult<ActionRollback.Wo> result = new ActionResult<>();
+		EffectivePerson effectivePerson = this.effectivePerson(request);
+		try {
+			result = new ActionRollback().execute(effectivePerson, id, jsonElement);
 		} catch (Exception e) {
 			logger.error(e, effectivePerson, request, null);
 			result.error(e);

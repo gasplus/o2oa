@@ -31,6 +31,11 @@ import com.x.base.core.entity.annotation.Flag;
 import com.x.base.core.project.annotation.FieldDescribe;
 import com.x.base.core.project.tools.ListTools;
 
+/**
+ * 栏目信息
+ * @author O2LEE
+ *
+ */
 @ContainerEntity
 @Entity
 @Table(name = PersistenceProperties.AppInfo.table, uniqueConstraints = {
@@ -153,13 +158,13 @@ public class AppInfo extends SliceJpaObject {
 	@Column( length =AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix + creatorTopUnitName_FIELDNAME)
 	@CheckPersist(allowEmpty = true)
 	private String creatorTopUnitName;
-
-	public static final String reviewed_FIELDNAME = "reviewed";
-	@FieldDescribe("是否已经更新review.")
-	@Column( name = ColumnNamePrefix + reviewed_FIELDNAME)
+	
+	public static final String anonymousAble_FIELDNAME = "anonymousAble";
+	@FieldDescribe("是否允许匿名访问.")
+	@Column( name = ColumnNamePrefix + anonymousAble_FIELDNAME)
 	@CheckPersist(allowEmpty = true)
-	@Index(name = TABLE + IndexNameMiddle + reviewed_FIELDNAME)
-	private Boolean reviewed = false;
+	@Index(name = TABLE + IndexNameMiddle + anonymousAble_FIELDNAME)
+	private Boolean anonymousAble = true;
 	
 	public static final String allPeopleView_FIELDNAME = "allPeopleView";
 	@FieldDescribe("可见范围为所有人可见.")
@@ -178,7 +183,7 @@ public class AppInfo extends SliceJpaObject {
 	public static final String categoryList_FIELDNAME = "categoryList";
 	@FieldDescribe("分类列表")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + categoryList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + categoryList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix + categoryList_FIELDNAME)
@@ -189,7 +194,7 @@ public class AppInfo extends SliceJpaObject {
 	public static final String viewablePersonList_FIELDNAME = "viewablePersonList";
 	@FieldDescribe("发布可见人员")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + viewablePersonList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + viewablePersonList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix + viewablePersonList_FIELDNAME)
@@ -200,7 +205,7 @@ public class AppInfo extends SliceJpaObject {
 	public static final String viewableUnitList_FIELDNAME = "viewableUnitList";
 	@FieldDescribe("发布可见组织")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + viewableUnitList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + viewableUnitList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix + viewableUnitList_FIELDNAME)
@@ -211,7 +216,7 @@ public class AppInfo extends SliceJpaObject {
 	public static final String viewableGroupList_FIELDNAME = "viewableGroupList";
 	@FieldDescribe("发布可见群组")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + viewableGroupList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + viewableGroupList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix + viewableGroupList_FIELDNAME)
@@ -222,7 +227,7 @@ public class AppInfo extends SliceJpaObject {
 	public static final String publishablePersonList_FIELDNAME = "publishablePersonList";
 	@FieldDescribe("可发布人员")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + publishablePersonList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + publishablePersonList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix + publishablePersonList_FIELDNAME)
@@ -233,7 +238,7 @@ public class AppInfo extends SliceJpaObject {
 	public static final String publishableUnitList_FIELDNAME = "publishableUnitList";
 	@FieldDescribe("可发布组织")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + publishableUnitList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + publishableUnitList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix + publishableUnitList_FIELDNAME)
@@ -244,7 +249,7 @@ public class AppInfo extends SliceJpaObject {
 	public static final String publishableGroupList_FIELDNAME = "publishableGroupList";
 	@FieldDescribe("可发布群组")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + publishableGroupList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + publishableGroupList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix + publishableGroupList_FIELDNAME)
@@ -255,7 +260,7 @@ public class AppInfo extends SliceJpaObject {
 	public static final String manageablePersonList_FIELDNAME = "manageablePersonList";
 	@FieldDescribe("栏目可管理人员")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + manageablePersonList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + manageablePersonList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix + manageablePersonList_FIELDNAME)
@@ -266,7 +271,7 @@ public class AppInfo extends SliceJpaObject {
 	public static final String manageableUnitList_FIELDNAME = "manageableUnitList";
 	@FieldDescribe("栏目可管理组织")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + manageableUnitList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + manageableUnitList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix + manageableUnitList_FIELDNAME)
@@ -277,7 +282,7 @@ public class AppInfo extends SliceJpaObject {
 	public static final String manageableGroupList_FIELDNAME = "manageableGroupList";
 	@FieldDescribe("栏目可管理群组")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = PersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + manageableGroupList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + manageableGroupList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix + manageableGroupList_FIELDNAME)
@@ -637,12 +642,12 @@ public class AppInfo extends SliceJpaObject {
 		removeStringFromList(this.manageableGroupList, groupName);
 	}
 
-	public Boolean getReviewed() {
-		return reviewed;
+	public Boolean getAnonymousAble() {
+		return anonymousAble;
 	}
 
-	public void setReviewed(Boolean reviewed) {
-		this.reviewed = reviewed;
+	public void setAnonymousAble(Boolean anonymousAble) {
+		this.anonymousAble = anonymousAble;
 	}
 
 	private List<String> addStringToList(List<String> sourceList, String targetString) {

@@ -7,13 +7,14 @@ import org.apache.commons.lang3.StringUtils;
 import com.x.base.core.container.EntityManagerContainer;
 import com.x.base.core.container.factory.EntityManagerContainerFactory;
 import com.x.base.core.entity.JpaObject;
+import com.x.base.core.entity.dynamic.DynamicEntity;
 import com.x.base.core.project.exception.ExceptionAccessDenied;
 import com.x.base.core.project.exception.ExceptionEntityNotExist;
 import com.x.base.core.project.http.ActionResult;
 import com.x.base.core.project.http.EffectivePerson;
 import com.x.base.core.project.jaxrs.WrapLong;
 import com.x.query.assemble.designer.Business;
-import com.x.query.assemble.designer.DynamicEntity;
+import com.x.query.core.entity.Query;
 import com.x.query.core.entity.schema.Table;
 
 class ActionRowCountWhere extends BaseAction {
@@ -27,13 +28,12 @@ class ActionRowCountWhere extends BaseAction {
 			if (null == table) {
 				throw new ExceptionEntityNotExist(tableFlag, Table.class);
 			}
-			if (!business.editable(effectivePerson, table)) {
-				throw new ExceptionAccessDenied(effectivePerson, table);
-			}
+			this.check(effectivePerson, business, table);
 			DynamicEntity dynamicEntity = new DynamicEntity(table.getName());
-			Class<? extends JpaObject> clz = (Class<JpaObject>) Class.forName(dynamicEntity.className());
-			EntityManager em = emc.get(clz);
-			String sql = "SELECT count(o) FROM " + clz.getName() + " o";
+			@SuppressWarnings("unchecked")
+			Class<? extends JpaObject> cls = (Class<JpaObject>) Class.forName(dynamicEntity.className());
+			EntityManager em = emc.get(cls);
+			String sql = "SELECT count(o) FROM " + cls.getName() + " o";
 			if (StringUtils.isNotBlank(where) && (!StringUtils.equals(where, EMPTY_SYMBOL))) {
 				sql += " where (" + where + ")";
 			}

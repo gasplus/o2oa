@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Id;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.openjpa.persistence.OpenJPAPersistence;
@@ -36,7 +37,6 @@ import com.x.base.core.entity.annotation.CheckRemove;
 import com.x.base.core.entity.annotation.Flag;
 import com.x.base.core.entity.annotation.RestrictFlag;
 import com.x.base.core.entity.tools.JpaObjectTools;
-import com.x.base.core.project.AbstractContext;
 import com.x.base.core.project.config.DataMappings;
 import com.x.base.core.project.tools.ListTools;
 
@@ -44,6 +44,7 @@ public abstract class SliceEntityManagerContainerFactory {
 
 	// protected static String persistence_xml_path = "META-INF/x_persistence.xml";
 	protected static String PERSISTENCE_XML_PATH = "META-INF/persistence.xml";
+	protected static String META_INF = "META-INF";
 
 	/* class 与 entityManagerFactory 映射表 */
 	protected Map<Class<? extends JpaObject>, EntityManagerFactory> entityManagerFactoryMap = new ConcurrentHashMap<Class<? extends JpaObject>, EntityManagerFactory>();
@@ -88,7 +89,7 @@ public abstract class SliceEntityManagerContainerFactory {
 			checkPersistFieldMap.put(clz, this.loadCheckPersistField(clz));
 			checkRemoveFieldMap.put(clz, this.loadCheckRemoveField(clz));
 			entityManagerFactoryMap.put(clz,
-					OpenJPAPersistence.createEntityManagerFactory(clz.getCanonicalName(), PERSISTENCE_XML_PATH));
+					OpenJPAPersistence.createEntityManagerFactory(clz.getName(), PERSISTENCE_XML_PATH));
 			List<Field> flagFields = new ArrayList<>();
 			List<Field> restrictFlagFields = new ArrayList<>();
 			for (Field o : FieldUtils.getFieldsListWithAnnotation(clz, Id.class)) {
@@ -111,9 +112,8 @@ public abstract class SliceEntityManagerContainerFactory {
 		Set<Class<? extends JpaObject>> classes = this.listUitClass(source);
 		for (Class<? extends JpaObject> clz : classes) {
 			checkPersistFieldMap.put(clz, this.loadCheckPersistField(clz));
-			checkRemoveFieldMap.put(clz, loadCheckRemoveField(clz));
-			entityManagerFactoryMap.put(clz,
-					OpenJPAPersistence.createEntityManagerFactory(clz.getCanonicalName(), source));
+			checkRemoveFieldMap.put(clz, this.loadCheckRemoveField(clz));
+			entityManagerFactoryMap.put(clz, OpenJPAPersistence.createEntityManagerFactory(clz.getName(), source));
 		}
 	}
 
@@ -139,10 +139,10 @@ public abstract class SliceEntityManagerContainerFactory {
 				unit.addAttribute("name", className);
 				unit.addAttribute("transaction-type", "RESOURCE_LOCAL");
 				Element provider = unit.addElement("provider");
-				provider.addText(PersistenceProviderImpl.class.getCanonicalName());
+				provider.addText(PersistenceProviderImpl.class.getName());
 				for (Class<?> o : JpaObjectTools.scanMappedSuperclass(clazz)) {
 					Element mapped_element = unit.addElement("class");
-					mapped_element.addText(o.getCanonicalName());
+					mapped_element.addText(o.getName());
 				}
 				Element slice_unit_properties = unit.addElement("properties");
 				for (Entry<String, String> entry : SlicePropertiesBuilder.getPropertiesDBCP(dataMappings.get(className))
@@ -155,6 +155,8 @@ public abstract class SliceEntityManagerContainerFactory {
 			}
 			OutputFormat format = OutputFormat.createPrettyPrint();
 			format.setEncoding("UTF-8");
+			File dir = new File(webApplicationDirectory + "/WEB-INF/classes/" + META_INF);
+			FileUtils.forceMkdir(dir);
 			File file = new File(webApplicationDirectory + "/WEB-INF/classes/" + PERSISTENCE_XML_PATH);
 			XMLWriter writer = new XMLWriter(new FileWriter(file), format);
 			writer.write(document);
@@ -221,7 +223,6 @@ public abstract class SliceEntityManagerContainerFactory {
 			if (null != checkPersist) {
 				map.put(fld, checkPersist);
 			}
-
 		}
 		return map;
 	}

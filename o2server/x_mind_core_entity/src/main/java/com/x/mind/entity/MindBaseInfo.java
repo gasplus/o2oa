@@ -59,11 +59,7 @@ public class MindBaseInfo extends SliceJpaObject {
 	private String id = createId();
 
 	public void onPersist() throws Exception {
-		composeSequnces();
-	}
-
-	public void composeSequnces() throws Exception {
-		if( this.getCreateTime() == null ) {
+		if( null == this.getCreateTime() ) {
 			this.setCreateTime( new Date() );
 		}
 		this.setSequence(StringUtils.join(DateTools.compact(this.getCreateTime()), this.getId()));
@@ -74,6 +70,17 @@ public class MindBaseInfo extends SliceJpaObject {
 		this.cooperative_sequence = StringUtils.join(this.getCooperative().toString(), this.getSequence());
 	}
 
+	public void composeSequnces() {
+		if( null == this.getCreateTime() ) {
+			this.setCreateTime( new Date() );
+		}
+		this.setSequence(StringUtils.join(DateTools.compact(this.getCreateTime()), this.getId()));
+		this.creator_sequence = StringUtils.join(this.creator, this.getSequence());
+		this.folder_sequence = StringUtils.join(this.getFolderId(), this.getSequence());
+		this.creatorUnit_sequence = StringUtils.join(this.getCreatorUnit(), this.getSequence());
+		this.shared_sequence = StringUtils.join(this.getShared().toString(), this.getSequence());
+		this.cooperative_sequence = StringUtils.join(this.getCooperative().toString(), this.getSequence());
+	}
 	/*
 	 * =============================================================================
 	 * ===== 以上为 JpaObject 默认字段
@@ -102,6 +109,12 @@ public class MindBaseInfo extends SliceJpaObject {
 	@Index(name = TABLE + IndexNameMiddle + folderId_FIELDNAME)
 	@CheckPersist(allowEmpty = false)
 	private String folderId = "";
+	
+	public static final String icon_FIELDNAME = "icon";
+	@FieldDescribe("缩略图信息")
+	@Column(length = JpaObject.length_255B, name = ColumnNamePrefix + icon_FIELDNAME)
+	@CheckPersist(allowEmpty = true)
+	private String icon = "";
 
 	public static final String description_FIELDNAME = "description";
 	@FieldDescribe("备注信息")
@@ -138,7 +151,7 @@ public class MindBaseInfo extends SliceJpaObject {
 	public static final String sharePersonList_FIELDNAME = "sharePersonList";
 	@FieldDescribe("共享人员")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name =  ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + sharePersonList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + sharePersonList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix
@@ -150,7 +163,7 @@ public class MindBaseInfo extends SliceJpaObject {
 	public static final String shareUnitList_FIELDNAME = "shareUnitList";
 	@FieldDescribe("共享组织")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name =  ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + shareUnitList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + shareUnitList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix
@@ -162,7 +175,7 @@ public class MindBaseInfo extends SliceJpaObject {
 	public static final String shareGroupList_FIELDNAME = "shareGroupList";
 	@FieldDescribe("共享群组")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name =  ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + shareGroupList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + shareGroupList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix
@@ -174,7 +187,7 @@ public class MindBaseInfo extends SliceJpaObject {
 	public static final String editorList_FIELDNAME = "editorList";
 	@FieldDescribe("可编辑人员")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name =  ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + editorList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + editorList_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix
@@ -366,4 +379,14 @@ public class MindBaseInfo extends SliceJpaObject {
 	public void setCooperative_sequence(String cooperative_sequence) {
 		this.cooperative_sequence = cooperative_sequence;
 	}
+
+	public String getIcon() {
+		return icon;
+	}
+
+	public void setIcon(String icon) {
+		this.icon = icon;
+	}
+	
+	
 }

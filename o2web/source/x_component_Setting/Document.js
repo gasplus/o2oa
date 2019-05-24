@@ -57,8 +57,17 @@ MWF.xApplication.Setting.Document.Input = new Class({
             this.button.setStyle("display", "none");
             this.input.focus();
 
-            if (!this.okButton) this.okButton = this.createButton(this.lp.ok, function(){
-                if (this.submitData()) this.editCancel();
+            if (!this.okButton) this.okButton = this.createButton(this.lp.ok, function(e){
+                if (this.data.lp.confirm){
+                    var _self = this;
+                    this.app.confirm("warn", e, "", {"html": this.data.lp.confirm}, 400, 200, function(){
+                        if (_self.submitData()) _self.editCancel();
+                        this.close();
+                    }, function(){this.close();})
+                }else{
+                    if (this.submitData()) this.editCancel();
+                }
+
             }.bind(this)).inject(this.button, "after");
 
             if (!this.cancelButton) this.cancelButton = this.createButton(this.lp.cancel, function(){
@@ -688,6 +697,7 @@ MWF.xApplication.Setting.Document.List.ItemEditor = new Class({
         }.bind(this));
     },
     save: function(dlg){
+        debugger;
         var keys = Object.keys(this.inputs);
         var values = {};
         var flag = true;
@@ -697,7 +707,7 @@ MWF.xApplication.Setting.Document.List.ItemEditor = new Class({
                 var value = (typeOf(input)=="element" && input.tagName.toString().toLowerCase()!="select") ? input.get("value") : input.getValue();
                 if (!value && value!==false){
                     flag = false;
-                    this.app.notice(this.lp.pleaseInput+this.lp.list[k], "error");
+                    this.app.notice(this.lp.pleaseInput+(this.lp.list[k] || k), "error");
                     return false;
                 }else{
                     values[k] = value;

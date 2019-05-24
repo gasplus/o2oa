@@ -5,6 +5,7 @@ import com.x.base.core.container.EntityManagerContainer;
 import com.x.base.core.container.factory.EntityManagerContainerFactory;
 import com.x.base.core.entity.JpaObject;
 import com.x.base.core.entity.annotation.CheckPersistType;
+import com.x.base.core.entity.dynamic.DynamicEntity;
 import com.x.base.core.project.exception.ExceptionAccessDenied;
 import com.x.base.core.project.exception.ExceptionEntityNotExist;
 import com.x.base.core.project.gson.XGsonBuilder;
@@ -12,7 +13,6 @@ import com.x.base.core.project.http.ActionResult;
 import com.x.base.core.project.http.EffectivePerson;
 import com.x.base.core.project.jaxrs.WrapBoolean;
 import com.x.query.assemble.designer.Business;
-import com.x.query.assemble.designer.DynamicEntity;
 import com.x.query.core.entity.schema.Table;
 
 class ActionRowUpdate extends BaseAction {
@@ -25,18 +25,17 @@ class ActionRowUpdate extends BaseAction {
 			if (null == table) {
 				throw new ExceptionEntityNotExist(tableFlag, Table.class);
 			}
-			if (!business.editable(effectivePerson, table)) {
-				throw new ExceptionAccessDenied(effectivePerson, table);
-			}
+			this.check(effectivePerson, business, table);
 			DynamicEntity dynamicEntity = new DynamicEntity(table.getName());
-			Class<? extends JpaObject> clz = (Class<JpaObject>) Class.forName(dynamicEntity.className());
-			JpaObject o = emc.find(id, clz);
+			@SuppressWarnings("unchecked")
+			Class<? extends JpaObject> cls = (Class<JpaObject>) Class.forName(dynamicEntity.className());
+			JpaObject o = emc.find(id, cls);
 			Wo wo = new Wo();
 			wo.setValue(false);
 			if (null != o) {
-				JpaObject n = XGsonBuilder.instance().fromJson(jsonElement, clz);
+				JpaObject n = XGsonBuilder.instance().fromJson(jsonElement, cls);
 				n.copyTo(o, JpaObject.FieldsUnmodify);
-				emc.beginTransaction(clz);
+				emc.beginTransaction(cls);
 				emc.check(o, CheckPersistType.all);
 				emc.commit();
 				wo.setValue(true);

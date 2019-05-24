@@ -35,16 +35,34 @@ public class TableAction extends StandardJaxrsAction {
 
 	private static Logger logger = LoggerFactory.getLogger(TableAction.class);
 
-	@JaxrsMethodDescribe(value = "编译表对象生成实体类进行数据库建表,执行后需要重新启动.", action = ActionBuild.class)
+	@JaxrsMethodDescribe(value = "根据query列示table对象.", action = ActionListWithQuery.class)
 	@GET
-	@Path("build/table")
+	@Path("list/query/{flag}")
 	@Produces(HttpMediaType.APPLICATION_JSON_UTF_8)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void build(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request) {
-		ActionResult<ActionBuild.Wo> result = new ActionResult<>();
+	public void listWithQuery(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request,
+			@JaxrsParameterDescribe("查询标识") @PathParam("flag") String flag) {
+		ActionResult<List<ActionListWithQuery.Wo>> result = new ActionResult<>();
 		EffectivePerson effectivePerson = this.effectivePerson(request);
 		try {
-			result = new ActionBuild().execute(effectivePerson);
+			result = new ActionListWithQuery().execute(effectivePerson, flag);
+		} catch (Exception e) {
+			logger.error(e, effectivePerson, request, null);
+			result.error(e);
+		}
+		asyncResponse.resume(ResponseFactory.getDefaultActionResultResponse(result));
+	}
+
+	@JaxrsMethodDescribe(value = "编译表对象生成实体类进行数据库建表,执行后需要重新启动.", action = ActionBuildAll.class)
+	@GET
+	@Path("build/all")
+	@Produces(HttpMediaType.APPLICATION_JSON_UTF_8)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void buildAll(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request) {
+		ActionResult<ActionBuildAll.Wo> result = new ActionResult<>();
+		EffectivePerson effectivePerson = this.effectivePerson(request);
+		try {
+			result = new ActionBuildAll().execute(effectivePerson);
 		} catch (Exception e) {
 			logger.error(e, effectivePerson, request, null);
 			result.error(e);
@@ -70,18 +88,17 @@ public class TableAction extends StandardJaxrsAction {
 		asyncResponse.resume(ResponseFactory.getDefaultActionResultResponse(result));
 	}
 
-	@JaxrsMethodDescribe(value = "列示表对象,下一页.", action = ActionListNext.class)
+	@JaxrsMethodDescribe(value = "标识表状态为草稿.", action = ActionStatusDraft.class)
 	@GET
-	@Path("list/{id}/next/{count}")
+	@Path("{flag}/status/draft")
 	@Produces(HttpMediaType.APPLICATION_JSON_UTF_8)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void listNext(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request,
-			@JaxrsParameterDescribe("标识") @PathParam("id") String id,
-			@JaxrsParameterDescribe("数量") @PathParam("count") Integer count) {
-		ActionResult<List<ActionListNext.Wo>> result = new ActionResult<>();
+	public void statusDraft(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request,
+			@JaxrsParameterDescribe("标识") @PathParam("flag") String flag) {
+		ActionResult<ActionStatusDraft.Wo> result = new ActionResult<>();
 		EffectivePerson effectivePerson = this.effectivePerson(request);
 		try {
-			result = new ActionListNext().execute(effectivePerson, id, count);
+			result = new ActionStatusDraft().execute(effectivePerson, flag);
 		} catch (Exception e) {
 			logger.error(e, effectivePerson, request, null);
 			result.error(e);
@@ -89,18 +106,17 @@ public class TableAction extends StandardJaxrsAction {
 		asyncResponse.resume(ResponseFactory.getDefaultActionResultResponse(result));
 	}
 
-	@JaxrsMethodDescribe(value = "列示Stat对象,上一页.", action = ActionListPrev.class)
+	@JaxrsMethodDescribe(value = "标识表状态为编译.", action = ActionStatusBuild.class)
 	@GET
-	@Path("list/{id}/prev/{count}")
+	@Path("{flag}/status/build")
 	@Produces(HttpMediaType.APPLICATION_JSON_UTF_8)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void listPrev(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request,
-			@JaxrsParameterDescribe("标识") @PathParam("id") String id,
-			@JaxrsParameterDescribe("数量") @PathParam("count") Integer count) {
-		ActionResult<List<ActionListPrev.Wo>> result = new ActionResult<>();
+	public void statusBuild(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request,
+			@JaxrsParameterDescribe("标识") @PathParam("flag") String flag) {
+		ActionResult<ActionStatusBuild.Wo> result = new ActionResult<>();
 		EffectivePerson effectivePerson = this.effectivePerson(request);
 		try {
-			result = new ActionListPrev().execute(effectivePerson, id, count);
+			result = new ActionStatusBuild().execute(effectivePerson, flag);
 		} catch (Exception e) {
 			logger.error(e, effectivePerson, request, null);
 			result.error(e);
@@ -163,7 +179,7 @@ public class TableAction extends StandardJaxrsAction {
 
 	@JaxrsMethodDescribe(value = "获取表中某一行数据", action = ActionRowGet.class)
 	@GET
-	@Path("table/{tableFlag}/row/{id}")
+	@Path("{tableFlag}/row/{id}")
 	@Produces(HttpMediaType.APPLICATION_JSON_UTF_8)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void rowGet(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request,
@@ -182,13 +198,13 @@ public class TableAction extends StandardJaxrsAction {
 
 	@JaxrsMethodDescribe(value = "通过where 获取表中的数据,格式为jpql语法,o.name='zhangsan'", action = ActionListRowSelectWhere.class)
 	@GET
-	@Path("list/table/{tableFlag}/row/select/where/{where}")
+	@Path("list/{tableFlag}/row/select/where/{where}")
 	@Produces(HttpMediaType.APPLICATION_JSON_UTF_8)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void listRowSelectWhere(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request,
 			@JaxrsParameterDescribe("表标识") @PathParam("tableFlag") String tableFlag,
 			@JaxrsParameterDescribe("where语句") @PathParam("where") String where) {
-		ActionResult<List<Object>> result = new ActionResult<>();
+		ActionResult<List<?>> result = new ActionResult<>();
 		EffectivePerson effectivePerson = this.effectivePerson(request);
 		try {
 			result = new ActionListRowSelectWhere().execute(effectivePerson, tableFlag, where);
@@ -201,7 +217,7 @@ public class TableAction extends StandardJaxrsAction {
 
 	@JaxrsMethodDescribe(value = "通过where 统计数量", action = ActionRowCountWhere.class)
 	@GET
-	@Path("table/{tableFlag}/row/count/where/{where}")
+	@Path("{tableFlag}/row/count/where/{where}")
 	@Produces(HttpMediaType.APPLICATION_JSON_UTF_8)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void rowCountWhere(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request,
@@ -220,7 +236,7 @@ public class TableAction extends StandardJaxrsAction {
 
 	@JaxrsMethodDescribe(value = "指定表中插入数据.", action = ActionRowInsert.class)
 	@POST
-	@Path("table/{tableFlag}")
+	@Path("{tableFlag}/row")
 	@Produces(HttpMediaType.APPLICATION_JSON_UTF_8)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void rowInsert(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request,
@@ -238,7 +254,7 @@ public class TableAction extends StandardJaxrsAction {
 
 	@JaxrsMethodDescribe(value = "更新指定表中指定行数据.", action = ActionRowUpdate.class)
 	@PUT
-	@Path("table/{tableFlag}/row/{id}")
+	@Path("{tableFlag}/row/{id}")
 	@Produces(HttpMediaType.APPLICATION_JSON_UTF_8)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void rowUpdate(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request,
@@ -257,7 +273,7 @@ public class TableAction extends StandardJaxrsAction {
 
 	@JaxrsMethodDescribe(value = "更新指定表中指定行数据.", action = ActionRowDelete.class)
 	@DELETE
-	@Path("table/{tableFlag}/row/{id}")
+	@Path("{tableFlag}/row/{id}")
 	@Produces(HttpMediaType.APPLICATION_JSON_UTF_8)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void rowDelete(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request,
@@ -274,9 +290,27 @@ public class TableAction extends StandardJaxrsAction {
 		asyncResponse.resume(ResponseFactory.getDefaultActionResultResponse(result));
 	}
 
+	@JaxrsMethodDescribe(value = "更新指定表中指定行数据.", action = ActionRowDeleteAll.class)
+	@DELETE
+	@Path("{tableFlag}/row/delete/all")
+	@Produces(HttpMediaType.APPLICATION_JSON_UTF_8)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void rowDeleteAll(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request,
+			@JaxrsParameterDescribe("表标识") @PathParam("tableFlag") String tableFlag) {
+		ActionResult<ActionRowDeleteAll.Wo> result = new ActionResult<>();
+		EffectivePerson effectivePerson = this.effectivePerson(request);
+		try {
+			result = new ActionRowDeleteAll().execute(effectivePerson, tableFlag);
+		} catch (Exception e) {
+			logger.error(e, effectivePerson, request, null);
+			result.error(e);
+		}
+		asyncResponse.resume(ResponseFactory.getDefaultActionResultResponse(result));
+	}
+
 	@JaxrsMethodDescribe(value = "列示表中的行对象,下一页.", action = ActionListRowNext.class)
 	@GET
-	@Path("list/table/{tableFlag}/row/{id}/next/{count}")
+	@Path("list/{tableFlag}/row/{id}/next/{count}")
 	@Produces(HttpMediaType.APPLICATION_JSON_UTF_8)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void listRowNext(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request,
@@ -296,7 +330,7 @@ public class TableAction extends StandardJaxrsAction {
 
 	@JaxrsMethodDescribe(value = "列示表中的行对象,上一页.", action = ActionListRowPrev.class)
 	@GET
-	@Path("list/table/{tableFlag}/row/{id}/prev/{count}")
+	@Path("list/{tableFlag}/row/{id}/prev/{count}")
 	@Produces(HttpMediaType.APPLICATION_JSON_UTF_8)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void listRowPrev(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request,
@@ -309,6 +343,24 @@ public class TableAction extends StandardJaxrsAction {
 			result = new ActionListRowPrev().execute(effectivePerson, tableFlag, id, count);
 		} catch (Exception e) {
 			logger.error(e, effectivePerson, request, null);
+			result.error(e);
+		}
+		asyncResponse.resume(ResponseFactory.getDefaultActionResultResponse(result));
+	}
+
+	@JaxrsMethodDescribe(value = "执行语句.", action = ActionExecute.class)
+	@POST
+	@Path("{flag}/execute")
+	@Produces(HttpMediaType.APPLICATION_JSON_UTF_8)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void execute(@Suspended final AsyncResponse asyncResponse, @Context HttpServletRequest request,
+			@JaxrsParameterDescribe("标识") @PathParam("flag") String flag, JsonElement jsonElement) {
+		ActionResult<Object> result = new ActionResult<>();
+		EffectivePerson effectivePerson = this.effectivePerson(request);
+		try {
+			result = new ActionExecute().execute(effectivePerson, flag, jsonElement);
+		} catch (Exception e) {
+			logger.error(e, effectivePerson, request, jsonElement);
 			result.error(e);
 		}
 		asyncResponse.resume(ResponseFactory.getDefaultActionResultResponse(result));

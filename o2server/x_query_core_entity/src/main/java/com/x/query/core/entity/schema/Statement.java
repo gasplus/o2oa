@@ -29,6 +29,7 @@ import com.x.base.core.entity.annotation.ContainerEntity;
 import com.x.base.core.entity.annotation.Flag;
 import com.x.base.core.project.annotation.FieldDescribe;
 import com.x.query.core.entity.PersistenceProperties;
+import com.x.query.core.entity.Query;
 
 @Entity
 @ContainerEntity
@@ -42,6 +43,11 @@ public class Statement extends SliceJpaObject {
 	private static final long serialVersionUID = -5610293696763235753L;
 
 	private static final String TABLE = PersistenceProperties.Schema.Statement.table;
+
+	public static final String TYPE_SELECT = "select";
+	public static final String TYPE_DELETE = "delete";
+	public static final String TYPE_UPDATE = "update";
+	public static final String TYPE_INSERT = "insert";
 
 	public String getId() {
 		return id;
@@ -86,13 +92,27 @@ public class Statement extends SliceJpaObject {
 	@CheckPersist(allowEmpty = true)
 	private String description;
 
+	public static final String query_FIELDNAME = "query";
+	@FieldDescribe("所属查询.")
+	@Column(length = JpaObject.length_id, name = ColumnNamePrefix + query_FIELDNAME)
+	@Index(name = TABLE + ColumnNamePrefix + query_FIELDNAME)
+	@CheckPersist(allowEmpty = false, citationExists = { @CitationExist(type = Query.class) })
+	private String query;
+
+	public static final String type_FIELDNAME = "type";
+	@FieldDescribe("语句类型,insert,delete,update,select")
+	@Column(length = length_16B, name = ColumnNamePrefix + type_FIELDNAME)
+	@Index(name = TABLE + IndexNameMiddle + type_FIELDNAME)
+	@CheckPersist(allowEmpty = false)
+	private String type;
+
 	public static final String executePersonList_FIELDNAME = "executePersonList";
 	@FieldDescribe("可执行的用户.")
 	@PersistentCollection(fetch = FetchType.EAGER)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle
 			+ executePersonList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle
 					+ executePersonList_FIELDNAME + JoinIndexNameSuffix))
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ElementColumn(length = length_255B, name = ColumnNamePrefix + executePersonList_FIELDNAME)
 	@ElementIndex(name = TABLE + IndexNameMiddle + executePersonList_FIELDNAME + ElementIndexNameSuffix)
 	@CheckPersist(allowEmpty = true)
@@ -103,7 +123,7 @@ public class Statement extends SliceJpaObject {
 	@PersistentCollection(fetch = FetchType.EAGER)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + executeUnitList_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + executeUnitList_FIELDNAME + JoinIndexNameSuffix))
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ElementColumn(length = length_255B, name = ColumnNamePrefix + executeUnitList_FIELDNAME)
 	@ElementIndex(name = TABLE + IndexNameMiddle + executeUnitList_FIELDNAME + ElementIndexNameSuffix)
 	@CheckPersist(allowEmpty = true)
@@ -252,6 +272,22 @@ public class Statement extends SliceJpaObject {
 
 	public void setAfterScriptText(String afterScriptText) {
 		this.afterScriptText = afterScriptText;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getQuery() {
+		return query;
+	}
+
+	public void setQuery(String query) {
+		this.query = query;
 	}
 
 }

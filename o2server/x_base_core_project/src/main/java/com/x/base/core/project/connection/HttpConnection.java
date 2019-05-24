@@ -23,16 +23,16 @@ import com.x.base.core.project.tools.ListTools;
 
 public class HttpConnection {
 
-	private static String Access_Control_Allow_Credentials = "Access-Control-Allow-Credentials";
-	private static String Access_Control_Allow_Credentials_Value = "true";
-	private static String Access_Control_Allow_Headers = "Access-Control-Allow-Headers";
-	private static String Access_Control_Allow_Headers_Value = "x-requested-with, x-request, x-token,Content-Type, x-cipher";
-	private static String Access_Control_Allow_Methods = "Access-Control-Allow-Methods";
-	private static String Access_Control_Allow_Methods_Value = "GET, POST, OPTIONS, PUT, DELETE, HEAD, TRACE";
-	private static String Cache_Control = "Cache-Control";
-	private static String Cache_Control_Value = "no-cache, no-transform";
-	private static String Content_Type = "Content-Type";
-	private static String Content_Type_Value = "application/json;charset=UTF-8";
+	public static final String Access_Control_Allow_Credentials = "Access-Control-Allow-Credentials";
+	public static final String Access_Control_Allow_Credentials_Value = "true";
+	public static final String Access_Control_Allow_Headers = "Access-Control-Allow-Headers";
+	public static final String Access_Control_Allow_Headers_Value = "x-requested-with, x-request, x-token,Content-Type, x-cipher";
+	public static final String Access_Control_Allow_Methods = "Access-Control-Allow-Methods";
+	public static final String Access_Control_Allow_Methods_Value = "GET, POST, OPTIONS, PUT, DELETE, HEAD, TRACE";
+	public static final String Cache_Control = "Cache-Control";
+	public static final String Cache_Control_Value = "no-cache, no-transform";
+	public static final String Content_Type = "Content-Type";
+	public static final String Content_Type_Value = "application/json;charset=UTF-8";
 
 	public static String getAsString(String address, List<NameValuePair> heads) throws Exception {
 		HttpURLConnection connection = prepare(address, heads);
@@ -81,32 +81,6 @@ public class HttpConnection {
 		String result = postAsString(address, heads, body);
 		return XGsonBuilder.instance().fromJson(result, collectionType);
 	}
-
-//	public static String postAsString(String address, List<NameValuePair> heads, byte[] bytes) throws Exception {
-//		HttpURLConnection connection = prepare(address, heads);
-//		connection.setRequestMethod("POST");
-//		connection.setDoOutput(true);
-//		connection.setDoInput(true);
-//		connection.connect();
-//		doOutput(connection, bytes);
-//		String str = readResultString(connection);
-//		connection.disconnect();
-//		return str;
-//	}
-//
-//	public static <T> T postAsObject(String address, List<NameValuePair> heads, byte[] bytes, Class<T> cls)
-//			throws Exception {
-//		String result = postAsString(address, heads, bytes);
-//		return XGsonBuilder.instance().fromJson(result, cls);
-//	}
-//
-//	public static <T> List<T> postAsObjects(String address, List<NameValuePair> heads, byte[] bytes, Class<T> cls)
-//			throws Exception {
-//		Type collectionType = new TypeToken<ArrayList<T>>() {
-//		}.getType();
-//		String result = postAsString(address, heads, bytes);
-//		return XGsonBuilder.instance().fromJson(result, collectionType);
-//	}
 
 	public static String putAsString(String address, List<NameValuePair> heads, String body) throws Exception {
 		HttpURLConnection connection = prepare(address, heads);

@@ -14,6 +14,8 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
 import org.apache.commons.lang3.StringUtils;
@@ -201,6 +203,7 @@ public class Calendar_EventRepeatMaster extends SliceJpaObject implements Clonea
 
 	public static final String startTime_FIELDNAME = "startTime";
 	@FieldDescribe("事件开始时间")
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = ColumnNamePrefix + startTime_FIELDNAME)
 	@Index(name = TABLE + IndexNameMiddle + startTime_FIELDNAME)
 	@CheckPersist(allowEmpty = false)
@@ -208,6 +211,7 @@ public class Calendar_EventRepeatMaster extends SliceJpaObject implements Clonea
 
 	public static final String endTime_FIELDNAME = "endTime";
 	@FieldDescribe("事件结束时间")
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = ColumnNamePrefix + endTime_FIELDNAME)
 	@Index(name = TABLE + IndexNameMiddle + endTime_FIELDNAME)
 	@CheckPersist(allowEmpty = false)
@@ -233,6 +237,7 @@ public class Calendar_EventRepeatMaster extends SliceJpaObject implements Clonea
 
 	public static final String recurrenceStartTime_FIELDNAME = "recurrenceStartTime";
 	@FieldDescribe("重复开始时间")
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = ColumnNamePrefix + recurrenceStartTime_FIELDNAME)
 	@CheckPersist(allowEmpty = false)
 	private Date recurrenceStartTime = null;
@@ -257,6 +262,7 @@ public class Calendar_EventRepeatMaster extends SliceJpaObject implements Clonea
 
 	public static final String alarmTime_FIELDNAME = "alarmTime";
 	@FieldDescribe("当前事件提醒时间")
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = ColumnNamePrefix + alarmTime_FIELDNAME)
 	@CheckPersist(allowEmpty = true)
 	private Date alarmTime = null;
@@ -338,7 +344,7 @@ public class Calendar_EventRepeatMaster extends SliceJpaObject implements Clonea
 	public static final String participants_FIELDNAME = "participants";
 	@FieldDescribe("参与者列表")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle + participants_FIELDNAME, joinIndex = @Index(name = TABLE
 			+ IndexNameMiddle + participants_FIELDNAME + JoinIndexNameSuffix))
 	@ElementColumn(length = AbstractPersistenceProperties.organization_name_length, name = ColumnNamePrefix
@@ -350,7 +356,7 @@ public class Calendar_EventRepeatMaster extends SliceJpaObject implements Clonea
 	public static final String manageablePersonList_FIELDNAME = "manageablePersonList";
 	@FieldDescribe("可管理人员列表")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle
 			+ manageablePersonList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle
 					+ manageablePersonList_FIELDNAME + JoinIndexNameSuffix))
@@ -363,7 +369,7 @@ public class Calendar_EventRepeatMaster extends SliceJpaObject implements Clonea
 	public static final String viewablePersonList_FIELDNAME = "viewablePersonList";
 	@FieldDescribe("可见人员列表")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle
 			+ viewablePersonList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle
 					+ viewablePersonList_FIELDNAME + JoinIndexNameSuffix))
@@ -376,7 +382,7 @@ public class Calendar_EventRepeatMaster extends SliceJpaObject implements Clonea
 	public static final String viewableUnitList_FIELDNAME = "viewableUnitList";
 	@FieldDescribe("可见组织列表")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle
 			+ viewableUnitList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle + viewableUnitList_FIELDNAME
 					+ JoinIndexNameSuffix))
@@ -389,7 +395,7 @@ public class Calendar_EventRepeatMaster extends SliceJpaObject implements Clonea
 	public static final String viewableGroupList_FIELDNAME = "viewableGroupList";
 	@FieldDescribe("可见群组列表")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle
 			+ viewableGroupList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle
 					+ viewableGroupList_FIELDNAME + JoinIndexNameSuffix))
@@ -402,7 +408,7 @@ public class Calendar_EventRepeatMaster extends SliceJpaObject implements Clonea
 	public static final String createdMonthList_FIELDNAME = "createdMonthList";
 	@FieldDescribe("已经生成的月份")
 	@PersistentCollection(fetch = FetchType.EAGER)
-	@OrderColumn(name = AbstractPersistenceProperties.orderColumn)
+	@OrderColumn(name = ORDERCOLUMNCOLUMN)
 	@ContainerTable(name = TABLE + ContainerTableNameMiddle
 			+ createdMonthList_FIELDNAME, joinIndex = @Index(name = TABLE + IndexNameMiddle + createdMonthList_FIELDNAME
 					+ JoinIndexNameSuffix))
